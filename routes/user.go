@@ -3,6 +3,7 @@ package routes
 import (
 	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/BimaAdi/Oauth2AuthorizationServer/core"
@@ -16,7 +17,63 @@ func userRoutes(rg *gin.RouterGroup) {
 	users := rg.Group("/user")
 
 	users.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "users")
+		// Get Query Parameter
+		page := c.DefaultQuery("page", "1")
+		pageSize := c.DefaultQuery("page_size", "10")
+		search := c.Query("search")
+		pageInt, errPage := strconv.Atoi(page)
+		pageSizeInt, errPageSize := strconv.Atoi((pageSize))
+		if errPage != nil || errPageSize != nil {
+			errorResponse := []map[string]string{}
+			if errPage != nil {
+				x := map[string]string{
+					"page": "invalid page, page should integer",
+				}
+				errorResponse = append(errorResponse, x)
+			}
+
+			if errPageSize != nil {
+				x := map[string]string{
+					"page_size": "invalid page_size, page_size should integer",
+				}
+				errorResponse = append(errorResponse, x)
+			}
+
+			c.JSON(http.StatusUnprocessableEntity, schemas.UnprocessableEntityResponse{
+				Message: errorResponse,
+			})
+			return
+		}
+		var searchNilable *string = nil
+		if search != "" {
+			searchNilable = &search
+		}
+
+		users, numData, numPage, err := repository.GetPaginatedUser(pageInt, pageSizeInt, searchNilable)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, schemas.InternalServerErrorResponse{
+				Error: err.Error(),
+			})
+			return
+		}
+
+		arrayDetailUser := []schemas.UserDetailResponse{}
+		for _, item := range users {
+			arrayDetailUser = append(arrayDetailUser, schemas.UserDetailResponse{
+				Id:       item.ID,
+				Username: item.Username,
+				Email:    item.Email,
+				IsActive: item.IsActive,
+			})
+		}
+
+		c.JSON(http.StatusOK, schemas.UserPaginateResponse{
+			Counts:    int(numData),
+			PageCount: int(numPage),
+			PageSize:  pageSizeInt,
+			Page:      pageInt,
+			Results:   arrayDetailUser,
+		})
 	})
 
 	users.GET("/:userId", func(c *gin.Context) {

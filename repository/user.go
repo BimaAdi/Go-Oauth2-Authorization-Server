@@ -1,11 +1,42 @@
 package repository
 
 import (
+	"math"
 	"time"
 
 	"github.com/BimaAdi/Oauth2AuthorizationServer/core"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/models"
 )
+
+func GetPaginatedUser(page int, pageSize int, search *string) ([]models.User, int64, int64, error) {
+	limit := pageSize
+	offset := (page - 1) * pageSize
+
+	query := models.DBConn.Where("deleted_at IS NULL")
+	countQuery := models.DBConn.Where("deleted_at IS NULL")
+
+	users := []models.User{}
+
+	if search != nil {
+		query = query.Where("email like '%" + *search + "%'")
+		countQuery = countQuery.Where("email like '%" + *search + "%'")
+	}
+
+	if err := query.
+		Order("created_at desc").
+		Limit(limit).Offset(offset).
+		Find(&users).Error; err != nil {
+		return users, 0, 0, err
+	}
+
+	var numData int64
+	if err := countQuery.Model(&models.User{}).Count(&numData).Error; err != nil {
+		return users, 0, 0, err
+	}
+
+	numPage := math.Ceil(float64(numData) / float64(pageSize))
+	return users, numData, int64(numPage), nil
+}
 
 func GetUserById(id string) (models.User, error) {
 	user := models.User{}

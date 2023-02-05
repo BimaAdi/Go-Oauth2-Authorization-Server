@@ -8,6 +8,14 @@ type UserDetailResponse struct {
 	IsSuperuser bool   `json:"is_superuser"`
 }
 
+type UserPaginateResponse struct {
+	Counts    int                  `json:"counts"`
+	PageCount int                  `json:"page_count"`
+	PageSize  int                  `json:"page_size"`
+	Page      int                  `json:"page"`
+	Results   []UserDetailResponse `json:"results"`
+}
+
 type UserCreateRequest struct {
 	Username    string `json:"username"`
 	Email       string `json:"email"`
