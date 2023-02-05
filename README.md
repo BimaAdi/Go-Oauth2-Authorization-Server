@@ -6,7 +6,7 @@ ON PROGRESS
     - Gorm Integration [v]
 - CRUD User
     - Create table user [v]
-    - Get All User (search and pagination) []
+    - Get All User (search and pagination) [v]
     - Get All User Test []
     - Get Detail User [v]
     - Get Detauk User Test []
