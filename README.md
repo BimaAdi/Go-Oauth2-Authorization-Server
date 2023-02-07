@@ -7,9 +7,9 @@ ON PROGRESS
 - CRUD User
     - Create table user [v]
     - Get All User (search and pagination) [v]
-    - Get All User Test []
+    - Get All User Test [v]
     - Get Detail User [v]
-    - Get Detauk User Test []
+    - Get Detail User Test [v]
     - Create User [v] (don't forget to json validation)
     - Create User Test [v]
     - Update User [v] (don't forget to json validation)

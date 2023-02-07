@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/BimaAdi/Oauth2AuthorizationServer/models"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/routes"
@@ -33,6 +34,86 @@ func (suite *MigrateTestSuite) SetupTest() {
 }
 
 // ==========================================
+
+func (suite *MigrateTestSuite) TestGetPaginateUser() {
+	// Given
+	timeZoneAsiaJakarta, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		panic(err.Error())
+	}
+	users := []models.User{
+		{
+			Email:       "a@test.com",
+			Username:    "a",
+			Password:    "Fakepassword",
+			IsActive:    true,
+			IsSuperuser: true,
+			CreatedAt:   time.Date(2022, 10, 5, 10, 0, 0, 0, timeZoneAsiaJakarta),
+		},
+		{
+			Email:       "b@test.com",
+			Username:    "b",
+			Password:    "Fakepassword",
+			IsActive:    true,
+			IsSuperuser: true,
+			CreatedAt:   time.Date(2022, 10, 4, 10, 0, 0, 0, timeZoneAsiaJakarta),
+		},
+		{
+			Email:       "c@test.com",
+			Username:    "c",
+			Password:    "Fakepassword",
+			IsActive:    true,
+			IsSuperuser: true,
+			CreatedAt:   time.Date(2022, 10, 3, 10, 0, 0, 0, timeZoneAsiaJakarta),
+		},
+	}
+	models.DBConn.Create(&users)
+
+	// When
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/user/?page=1&page_size=2", nil)
+	suite.router.ServeHTTP(w, req)
+
+	// Expect
+	assert.Equal(suite.T(), 200, w.Code)
+	jsonResponse := schemas.UserPaginateResponse{}
+	err = json.Unmarshal(w.Body.Bytes(), &jsonResponse)
+	assert.Nil(suite.T(), err, "Invalid response json")
+	assert.Equal(suite.T(), 3, jsonResponse.Counts)
+	assert.Equal(suite.T(), 2, jsonResponse.PageCount)
+	assert.Equal(suite.T(), 1, jsonResponse.Page)
+	assert.Equal(suite.T(), 2, jsonResponse.PageSize)
+	assert.Len(suite.T(), jsonResponse.Results, 2)
+	for i := 0; i < 2; i++ {
+		assert.Equal(suite.T(), users[i].ID, jsonResponse.Results[i].Id)
+		assert.Equal(suite.T(), users[i].Username, jsonResponse.Results[i].Username)
+		assert.Equal(suite.T(), users[i].Email, jsonResponse.Results[i].Email)
+		assert.Equal(suite.T(), users[i].IsActive, jsonResponse.Results[i].IsActive)
+	}
+
+	// When 2
+	w2 := httptest.NewRecorder()
+	req2, _ := http.NewRequest("GET", "/user/?page=2&page_size=2", nil)
+	suite.router.ServeHTTP(w2, req2)
+
+	// Expect 2
+	assert.Equal(suite.T(), 200, w2.Code)
+	jsonResponse2 := schemas.UserPaginateResponse{}
+	err = json.Unmarshal(w2.Body.Bytes(), &jsonResponse2)
+	assert.Nil(suite.T(), err, "Invalid response json")
+	assert.Equal(suite.T(), 3, jsonResponse2.Counts)
+	assert.Equal(suite.T(), 2, jsonResponse2.PageCount)
+	assert.Equal(suite.T(), 2, jsonResponse2.Page)
+	assert.Equal(suite.T(), 2, jsonResponse2.PageSize)
+	assert.Len(suite.T(), jsonResponse2.Results, 1)
+	expect_2 := users[2:3]
+	for i := 0; i < 1; i++ {
+		assert.Equal(suite.T(), expect_2[i].ID, jsonResponse2.Results[i].Id)
+		assert.Equal(suite.T(), expect_2[i].Username, jsonResponse2.Results[i].Username)
+		assert.Equal(suite.T(), expect_2[i].Email, jsonResponse2.Results[i].Email)
+		assert.Equal(suite.T(), expect_2[i].IsActive, jsonResponse2.Results[i].IsActive)
+	}
+}
 
 func (suite *MigrateTestSuite) TestGetDetailUser() {
 	// Given
