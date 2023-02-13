@@ -2,6 +2,7 @@ package settings
 
 import (
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
@@ -20,9 +21,20 @@ var POSTGRESQL_PORT string
 var POSTGRESQL_SSL_MODE string
 var POSTGRESQL_TIMEZONE string
 
+// JWT secret
+var JWT_SECRET string
+var ACCESS_TOKEN_EXPIRE_MINUTES int
+
+func EnvToInt(key string) (int, error) {
+	valueString := os.Getenv(key)
+	valueInt, err := strconv.Atoi(valueString)
+	return valueInt, err
+}
+
 func InitiateSettings(pathToEnvFile string) {
+	var err error
 	if os.Getenv("ENVIRONTMENT") != "PROD" {
-		err := godotenv.Load(pathToEnvFile)
+		err = godotenv.Load(pathToEnvFile)
 		if err != nil {
 			panic(err)
 		}
@@ -38,4 +50,9 @@ func InitiateSettings(pathToEnvFile string) {
 	POSTGRESQL_PORT = os.Getenv("POSTGRESQL_PORT")
 	POSTGRESQL_SSL_MODE = os.Getenv("POSTGRESQL_SSL_MODE")
 	POSTGRESQL_TIMEZONE = os.Getenv("POSTGRESQL_TIMEZONE")
+	JWT_SECRET = os.Getenv("JWT_SECRET")
+	ACCESS_TOKEN_EXPIRE_MINUTES, err = EnvToInt("ACCESS_TOKEN_EXPIRE_MINUTES")
+	if err != nil {
+		panic("ACCESS_TOKEN_EXPIRE_MINUTES not defined on env or not a number")
+	}
 }
