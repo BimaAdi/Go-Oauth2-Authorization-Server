@@ -19,7 +19,7 @@ ON PROGRESS
     - Authorization For CRUD User []
 - Authentication
     - Simple email password login /token []
-    - JWT token []
+    - JWT token [v] (https://github.com/lestrrat-go/jwx)
 - Testing
     - testify integration [v]
 - Swagger
