@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/BimaAdi/Oauth2AuthorizationServer/models"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/settings"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 func HashPassword(password string) (string, error) {
@@ -57,13 +59,32 @@ func GetPayloadFromJWTToken(jwtToken string) (string, string, error) {
 
 	// Get Payload
 	id, isIdFound := tok.Get("id")
-	if isIdFound == false {
+	if !isIdFound {
 		return "", "", errors.New("id not found on token payload")
 	}
 	email, isEmailFound := tok.Get("email")
-	if isEmailFound == false {
+	if !isEmailFound {
 		return "", "", errors.New("email not found on token payload")
 	}
 
 	return fmt.Sprint(id), fmt.Sprint(email), nil
+}
+
+func GenerateJWTTokenFromUser(tx *gorm.DB, user models.User) (string, error) {
+	tok, err := GenerateJWTToken(user.ID, user.Email)
+	return tok, err
+}
+
+func GetUserFromJWTToken(tx *gorm.DB, jwtToken string) (models.User, error) {
+	user := models.User{}
+	userId, _, err := GetPayloadFromJWTToken(jwtToken)
+	if err != nil {
+		return user, err
+	}
+
+	if err := models.DBConn.Where("id = ? AND deleted_at IS NULL", userId).First(&user).Error; err != nil {
+		return user, err
+	}
+
+	return user, nil
 }
