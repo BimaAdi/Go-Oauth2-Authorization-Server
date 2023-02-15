@@ -1,0 +1,7 @@
+info:
+  contact: {}
+  description: Oauth2 Authorization server
+  title: Go Oauth2 Authorization Server
+  version: "1.0"
+paths: {}
+swagger: "2.0"

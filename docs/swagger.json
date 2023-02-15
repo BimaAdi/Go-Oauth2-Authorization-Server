@@ -1,0 +1,10 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Oauth2 Authorization server",
+        "title": "Go Oauth2 Authorization Server",
+        "contact": {},
+        "version": "1.0"
+    },
+    "paths": {}
+}
