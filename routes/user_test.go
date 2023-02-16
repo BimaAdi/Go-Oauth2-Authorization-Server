@@ -26,7 +26,8 @@ func (suite *MigrateTestSuite) SetupSuite() {
 	settings.InitiateSettings("../.env")
 	models.Initiate()
 	models.AutoMigrate()
-	suite.router = routes.GetRoutes()
+	router := gin.Default()
+	suite.router = routes.GetRoutes(router)
 }
 
 func (suite *MigrateTestSuite) SetupTest() {

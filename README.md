@@ -23,7 +23,7 @@ ON PROGRESS
 - Testing
     - testify integration [v]
 - Swagger
-    - swagger integration []
+    - swagger integration [v]
 - CLI using https://github.com/urfave/cli
     - CLI integration []
     - create superuser through cli []
