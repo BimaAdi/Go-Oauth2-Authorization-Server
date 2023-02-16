@@ -23,7 +23,7 @@ ON PROGRESS
 - Testing
     - testify integration [v]
 - Swagger
-    - swagger integration []
+    - swagger integration [v]
 - CLI using https://github.com/urfave/cli
     - CLI integration []
     - create superuser through cli []
@@ -107,6 +107,17 @@ ON PROGRESS
     - Create Tabel user_role []
     - Create Tabel user_permission []
     - Create Tabel role_permission []
+
+## Requirements
+- Go ver 1.19
+- Postgres ver 14
+
+## Instalation (for development)
+1. `go install github.com/swaggo/swag/cmd/swag@latest`
+1. copy .env.example to .env and fill based on your postgres configuration and set env as "dev"
+1. generate/refresh swagger.json `swag init`
+1. run server `go run main.go`
+1. open swagger "http://{SERVER_HOST}:{SERVER_PORT}/docs/index.html"
 
 ## Testing
 
