@@ -28,16 +28,18 @@ func userRoutes(rg *gin.RouterGroup) {
 }
 
 // Get All User
-// @Summary     Get All User
-// @Description Get All User
-// @Tags        User
-// @Produce     json
-// @Param       page      query    int false "page"
-// @Param       page_size query    int false "page"
-// @Success     200       {object} schemas.UserPaginateResponse
-// @Failure     400       {object} schemas.BadRequestResponse
-// @Failure     500       {object} schemas.InternalServerErrorResponse
-// @Router      /user/ [get]
+//
+//	@Summary		Get All User
+//	@Description	Get All User
+//	@Tags			User
+//	@Produce		json
+//	@Param			page		query		int	false	"page"
+//	@Param			page_size	query		int	false	"page"
+//	@Success		200			{object}	schemas.UserPaginateResponse
+//	@Failure		400			{object}	schemas.BadRequestResponse
+//	@Failure		500			{object}	schemas.InternalServerErrorResponse
+//	@Security		OAuth2Password
+//	@Router			/user/ [get]
 func GetAllUserRoute(c *gin.Context) {
 	// Get Query Parameter
 	page := c.DefaultQuery("page", "1")
@@ -99,16 +101,17 @@ func GetAllUserRoute(c *gin.Context) {
 }
 
 // Get Detail User
-// @Summary     Get Detail User
-// @Description Get detail user
-// @Tags        User
-// @Produce     json
-// @Param       id  path     string true "User ID"
-// @Success     200 {object} schemas.UserDetailResponse
-// @Failure     400 {object} schemas.BadRequestResponse
-// @Failure     404 {object} schemas.NotFoundResponse
-// @Failure     500 {object} schemas.InternalServerErrorResponse
-// @Router      /user/{id} [get]
+//
+//	@Summary		Get Detail User
+//	@Description	Get detail user
+//	@Tags			User
+//	@Produce		json
+//	@Param			id	path		string	true	"User ID"
+//	@Success		200	{object}	schemas.UserDetailResponse
+//	@Failure		400	{object}	schemas.BadRequestResponse
+//	@Failure		404	{object}	schemas.NotFoundResponse
+//	@Failure		500	{object}	schemas.InternalServerErrorResponse
+//	@Router			/user/{id} [get]
 func GetDetailUserRoute(c *gin.Context) {
 	userId := c.Params.ByName("userId")
 	if !core.IsValidUUID(userId) {
@@ -143,16 +146,17 @@ func GetDetailUserRoute(c *gin.Context) {
 }
 
 // Create User
-// @Summary     Create User
-// @Description Create User
-// @Tags        User
-// @Accept      json
-// @Produce     json
-// @Param       user body     schemas.UserCreateRequest true "Create User"
-// @Success     200  {object} schemas.UserCreateResponse
-// @Failure     400  {object} schemas.BadRequestResponse
-// @Failure     500  {object} schemas.InternalServerErrorResponse
-// @Router      /user/ [post]
+//
+//	@Summary		Create User
+//	@Description	Create User
+//	@Tags			User
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body		schemas.UserCreateRequest	true	"Create User"
+//	@Success		200		{object}	schemas.UserCreateResponse
+//	@Failure		400		{object}	schemas.BadRequestResponse
+//	@Failure		500		{object}	schemas.InternalServerErrorResponse
+//	@Router			/user/ [post]
 func CreateUserRoute(c *gin.Context) {
 	var newUser schemas.UserCreateRequest
 	err := c.BindJSON(&newUser)
@@ -182,18 +186,19 @@ func CreateUserRoute(c *gin.Context) {
 }
 
 // Update User
-// @Summary     Update User
-// @Description Update User
-// @Tags        User
-// @Accept      json
-// @Produce     json
-// @Param       id path string true "User ID"
-// @Param       user body     schemas.UserUpdateRequest true "Update User"
-// @Success     200  {object} schemas.UserUpdateResponse
-// @Failure     400  {object} schemas.BadRequestResponse
-// @Failure     404  {object} schemas.NotFoundResponse
-// @Failure     500  {object} schemas.InternalServerErrorResponse
-// @Router      /user/{id} [put]
+//
+//	@Summary		Update User
+//	@Description	Update User
+//	@Tags			User
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string						true	"User ID"
+//	@Param			user	body		schemas.UserUpdateRequest	true	"Update User"
+//	@Success		200		{object}	schemas.UserUpdateResponse
+//	@Failure		400		{object}	schemas.BadRequestResponse
+//	@Failure		404		{object}	schemas.NotFoundResponse
+//	@Failure		500		{object}	schemas.InternalServerErrorResponse
+//	@Router			/user/{id} [put]
 func UpdateUserRoute(c *gin.Context) {
 	// get input user
 	userId := c.Params.ByName("userId")
@@ -255,14 +260,15 @@ func UpdateUserRoute(c *gin.Context) {
 }
 
 // Delete User
-// @Summary     Delete User
-// @Description Delete user
-// @Tags        User
-// @Param       id   path     string                    true "User ID"
-// @Success     204
-// @Failure     404 {object} schemas.NotFoundResponse
-// @Failure     500 {object} schemas.InternalServerErrorResponse
-// @Router      /user/{id} [delete]
+//
+//	@Summary		Delete User
+//	@Description	Delete user
+//	@Tags			User
+//	@Param			id	path	string	true	"User ID"
+//	@Success		204
+//	@Failure		404	{object}	schemas.NotFoundResponse
+//	@Failure		500	{object}	schemas.InternalServerErrorResponse
+//	@Router			/user/{id} [delete]
 func DeleteUserRoute(c *gin.Context) {
 	// get input user
 	userId := c.Params.ByName("userId")

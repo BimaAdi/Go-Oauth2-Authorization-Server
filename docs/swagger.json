@@ -6,10 +6,14 @@
         "contact": {},
         "version": "1.0"
     },
-    "basePath": "/",
     "paths": {
         "/user/": {
             "get": {
+                "security": [
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Get All User",
                 "produces": [
                     "application/json"
@@ -383,6 +387,13 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "OAuth2Password": {
+            "type": "oauth2",
+            "flow": "password",
+            "tokenUrl": "/auth/login"
         }
     }
 }

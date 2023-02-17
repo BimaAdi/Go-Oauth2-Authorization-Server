@@ -11,10 +11,13 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @title Go Oauth2 Authorization Server
-// @version 1.0
-// @description Oauth2 Authorization server
-// @BasePath                            /
+//	@title									Go Oauth2 Authorization Server
+//	@version								1.0
+//	@description							Oauth2 Authorization server
+//
+//	@securitydefinitions.oauth2.password	OAuth2Password
+//	@tokenurl								/auth/login
+//	@BasePath								/
 func main() {
 	// Initialize environtment variable
 	settings.InitiateSettings(".env")

@@ -1,4 +1,3 @@
-basePath: /
 definitions:
   schemas.BadRequestResponse:
     properties:
@@ -128,6 +127,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/schemas.InternalServerErrorResponse'
+      security:
+      - OAuth2Password: []
       summary: Get All User
       tags:
       - User
@@ -251,4 +252,9 @@ paths:
       summary: Update User
       tags:
       - User
+securityDefinitions:
+  OAuth2Password:
+    flow: password
+    tokenUrl: /auth/login
+    type: oauth2
 swagger: "2.0"

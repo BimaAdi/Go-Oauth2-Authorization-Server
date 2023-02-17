@@ -15,3 +15,7 @@ type UnprocessableEntityResponse struct {
 type InternalServerErrorResponse struct {
 	Error string `json:"error"`
 }
+
+type NotImplementedResponse struct {
+	Error string `json:"error"`
+}

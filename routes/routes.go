@@ -9,6 +9,7 @@ import (
 // so this one won't be so messy
 func GetRoutes(router *gin.Engine) *gin.Engine {
 	noPrefixRoutes := router.Group("/")
+	authRoutes(noPrefixRoutes)
 	userRoutes(noPrefixRoutes)
 	return router
 }

@@ -17,6 +17,11 @@ const docTemplate = `{
     "paths": {
         "/user/": {
             "get": {
+                "security": [
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Get All User",
                 "produces": [
                     "application/json"
@@ -391,6 +396,13 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "OAuth2Password": {
+            "type": "oauth2",
+            "flow": "password",
+            "tokenUrl": "/auth/login"
+        }
     }
 }`
 
@@ -398,7 +410,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "",
-	BasePath:         "/",
+	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "Go Oauth2 Authorization Server",
 	Description:      "Oauth2 Authorization server",
