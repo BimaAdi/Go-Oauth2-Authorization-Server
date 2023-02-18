@@ -101,3 +101,11 @@ func DeleteUser(user models.User) (models.User, error) {
 	}
 	return user, nil
 }
+
+func GetUserByUsername(username string) (models.User, error) {
+	user := models.User{}
+	if err := models.DBConn.Where("username = ? AND deleted_at IS NULL", username).First(&user).Error; err != nil {
+		return user, err
+	}
+	return user, nil
+}

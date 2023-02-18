@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/BimaAdi/Oauth2AuthorizationServer/core"
+	"github.com/BimaAdi/Oauth2AuthorizationServer/models"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/repository"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/schemas"
 	"github.com/gin-gonic/gin"
@@ -37,10 +38,20 @@ func userRoutes(rg *gin.RouterGroup) {
 //	@Param			page_size	query		int	false	"page"
 //	@Success		200			{object}	schemas.UserPaginateResponse
 //	@Failure		400			{object}	schemas.BadRequestResponse
+//	@Failure		401			{object}	schemas.UnauthorizedResponse
 //	@Failure		500			{object}	schemas.InternalServerErrorResponse
 //	@Security		OAuth2Password
 //	@Router			/user/ [get]
 func GetAllUserRoute(c *gin.Context) {
+	// Authorize User
+	_, err := core.GetUserFromAuthorizationHeader(models.DBConn, c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, schemas.UnauthorizedResponse{
+			Message: "Invalid/Expired token",
+		})
+		return
+	}
+
 	// Get Query Parameter
 	page := c.DefaultQuery("page", "1")
 	pageSize := c.DefaultQuery("page_size", "10")

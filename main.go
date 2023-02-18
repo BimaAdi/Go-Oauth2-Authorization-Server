@@ -32,7 +32,7 @@ func main() {
 		AllowAllOrigins:        true,
 		AllowOrigins:           []string{},
 		AllowMethods:           []string{"GET", "POST", "PUT", "DELETE", "OPTION"},
-		AllowHeaders:           []string{"Origin", "Content-Type"},
+		AllowHeaders:           []string{"Origin", "Content-Type", "authorization", "accept"},
 		AllowCredentials:       true,
 		ExposeHeaders:          []string{"Content-Length"},
 		MaxAge:                 0,
