@@ -18,7 +18,7 @@ ON PROGRESS
     - Delete User Test [v]
     - Authorization For CRUD User []
 - Authentication
-    - Simple email password login /token []
+    - Simple email password login /auth/login [v]
     - JWT token [v] (https://github.com/lestrrat-go/jwx)
 - Testing
     - testify integration [v]

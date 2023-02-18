@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/BimaAdi/Oauth2AuthorizationServer/core"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/models"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/routes"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/schemas"
@@ -69,10 +70,16 @@ func (suite *MigrateTestSuite) TestGetPaginateUser() {
 		},
 	}
 	models.DBConn.Create(&users)
+	request_user := users[0]
+	token, err := core.GenerateJWTTokenFromUser(models.DBConn, request_user)
+	if err != nil {
+		panic(err.Error())
+	}
 
 	// When
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/user/?page=1&page_size=2", nil)
+	req.Header.Set("authorization", "Bearer "+token)
 	suite.router.ServeHTTP(w, req)
 
 	// Expect
@@ -95,6 +102,7 @@ func (suite *MigrateTestSuite) TestGetPaginateUser() {
 	// When 2
 	w2 := httptest.NewRecorder()
 	req2, _ := http.NewRequest("GET", "/user/?page=2&page_size=2", nil)
+	req2.Header.Set("authorization", "Bearer "+token)
 	suite.router.ServeHTTP(w2, req2)
 
 	// Expect 2

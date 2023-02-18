@@ -3,10 +3,12 @@ package core
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/BimaAdi/Oauth2AuthorizationServer/models"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/settings"
+	"github.com/gin-gonic/gin"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 	"golang.org/x/crypto/bcrypt"
@@ -84,6 +86,27 @@ func GetUserFromJWTToken(tx *gorm.DB, jwtToken string) (models.User, error) {
 
 	if err := models.DBConn.Where("id = ? AND deleted_at IS NULL", userId).First(&user).Error; err != nil {
 		return user, err
+	}
+
+	return user, nil
+}
+
+func GetUserFromAuthorizationHeader(tx *gorm.DB, c *gin.Context) (models.User, error) {
+	authHeader := c.GetHeader("authorization")
+	arrayHeader := strings.Fields(authHeader)
+	if len(arrayHeader) != 2 {
+		return models.User{}, errors.New("invalid token key lenght no 2")
+	}
+
+	key := arrayHeader[0]
+	token := arrayHeader[1]
+	if key != "Bearer" {
+		return models.User{}, errors.New("invalid token key not Bearer")
+	}
+
+	user, err := GetUserFromJWTToken(tx, token)
+	if err != nil {
+		return models.User{}, errors.New("invalid token")
 	}
 
 	return user, nil

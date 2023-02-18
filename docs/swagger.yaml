@@ -1,4 +1,3 @@
-basePath: /
 definitions:
   schemas.BadRequestResponse:
     properties:
@@ -10,7 +9,19 @@ definitions:
       error:
         type: string
     type: object
+  schemas.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      token_type:
+        type: string
+    type: object
   schemas.NotFoundResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  schemas.UnauthorizedResponse:
     properties:
       message:
         type: string
@@ -101,6 +112,34 @@ info:
   title: Go Oauth2 Authorization Server
   version: "1.0"
 paths:
+  /auth/login:
+    post:
+      description: login
+      parameters:
+      - in: formData
+        name: password
+        type: string
+      - in: formData
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.BadRequestResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.InternalServerErrorResponse'
+      summary: Login
+      tags:
+      - Auth
   /user/:
     get:
       description: Get All User
@@ -124,10 +163,16 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/schemas.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/schemas.UnauthorizedResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/schemas.InternalServerErrorResponse'
+      security:
+      - OAuth2Password: []
       summary: Get All User
       tags:
       - User
@@ -251,4 +296,9 @@ paths:
       summary: Update User
       tags:
       - User
+securityDefinitions:
+  OAuth2Password:
+    flow: password
+    tokenUrl: /auth/login
+    type: oauth2
 swagger: "2.0"

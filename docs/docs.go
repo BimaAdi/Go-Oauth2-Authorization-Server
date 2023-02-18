@@ -15,8 +15,57 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/login": {
+            "post": {
+                "description": "login",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "name": "username",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.BadRequestResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/": {
             "get": {
+                "security": [
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Get All User",
                 "produces": [
                     "application/json"
@@ -50,6 +99,12 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/schemas.BadRequestResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.UnauthorizedResponse"
                         }
                     },
                     "500": {
@@ -260,7 +315,26 @@ const docTemplate = `{
                 }
             }
         },
+        "schemas.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "token_type": {
+                    "type": "string"
+                }
+            }
+        },
         "schemas.NotFoundResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas.UnauthorizedResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -391,6 +465,13 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "OAuth2Password": {
+            "type": "oauth2",
+            "flow": "password",
+            "tokenUrl": "/auth/login"
+        }
     }
 }`
 
@@ -398,7 +479,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "",
-	BasePath:         "/",
+	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "Go Oauth2 Authorization Server",
 	Description:      "Oauth2 Authorization server",
