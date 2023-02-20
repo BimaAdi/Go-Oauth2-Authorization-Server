@@ -25,9 +25,9 @@ ON PROGRESS
 - Swagger
     - swagger integration [v]
 - CLI using https://github.com/urfave/cli
-    - CLI integration []
+    - CLI integration [v]
     - create superuser through cli []
-    - run server througj cli []
+    - run server througj cli [v]
 - Oauth2 Flow
     - create table oauth2_session []
     - client registration api /client-registration (generate client_id and client_secret) []

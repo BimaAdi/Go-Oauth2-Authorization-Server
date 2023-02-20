@@ -1,6 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"os"
+
 	"github.com/BimaAdi/Oauth2AuthorizationServer/docs"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/models"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/routes"
@@ -9,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/urfave/cli/v2"
 )
 
 //	@title									Go Oauth2 Authorization Server
@@ -19,6 +24,35 @@ import (
 //	@tokenurl								/auth/login
 //	@BasePath								/
 func main() {
+	app := &cli.App{
+		Commands: []*cli.Command{
+			{
+				Name:    "sayhello",
+				Aliases: []string{"sh"},
+				Usage:   "say hello to",
+				Action: func(cCtx *cli.Context) error {
+					fmt.Println("hello ", cCtx.Args().First())
+					return nil
+				},
+			},
+			{
+				Name:    "runserver",
+				Aliases: []string{"rs"},
+				Usage:   "run webserver",
+				Action: func(cCtx *cli.Context) error {
+					runServer()
+					return nil
+				},
+			},
+		},
+	}
+
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func runServer() {
 	// Initialize environtment variable
 	settings.InitiateSettings(".env")
 
