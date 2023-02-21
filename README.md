@@ -26,7 +26,7 @@ ON PROGRESS
     - swagger integration [v]
 - CLI using https://github.com/urfave/cli
     - CLI integration [v]
-    - create superuser through cli []
+    - create superuser through cli [v]
     - run server througj cli [v]
 - Oauth2 Flow
     - create table oauth2_session []
@@ -116,7 +116,7 @@ ON PROGRESS
 1. `go install github.com/swaggo/swag/cmd/swag@latest`
 1. copy .env.example to .env and fill based on your postgres configuration and set env as "dev"
 1. generate/refresh swagger.json `swag init`
-1. run server `go run main.go`
+1. run server `go run main.go runserver`
 1. open swagger "http://{SERVER_HOST}:{SERVER_PORT}/docs/index.html"
 
 ## Testing
@@ -126,4 +126,5 @@ ON PROGRESS
 - run all test in file `go test ./{folder name}/{file name}`
 - run specific test function `go test --run '^{function name}$' ./{folder name}/{file name}` (Note: --run input is a regex)
 - run test verbosely (show log) `go test ./... -v`
-- remove all test cache `go clean -testcache ./...`
+- remove all test cache `go clean -testcache`
+- disable parallel test `go test ./... -p 1`

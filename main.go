@@ -5,14 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/BimaAdi/Oauth2AuthorizationServer/docs"
-	"github.com/BimaAdi/Oauth2AuthorizationServer/models"
-	"github.com/BimaAdi/Oauth2AuthorizationServer/routes"
-	"github.com/BimaAdi/Oauth2AuthorizationServer/settings"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/BimaAdi/Oauth2AuthorizationServer/tasks"
 	"github.com/urfave/cli/v2"
 )
 
@@ -40,7 +33,49 @@ func main() {
 				Aliases: []string{"rs"},
 				Usage:   "run webserver",
 				Action: func(cCtx *cli.Context) error {
-					runServer()
+					tasks.RunServer(".env")
+					return nil
+				},
+			},
+			{
+				Name:    "migrate-db",
+				Aliases: []string{"md"},
+				Usage:   "migrate database",
+				Action: func(cCtx *cli.Context) error {
+					tasks.MigrateDB(".env")
+					return nil
+				},
+			},
+			{
+				Name:    "init-superuser",
+				Aliases: []string{"is"},
+				Usage:   "create initial superuser",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "username",
+						Value: "admin",
+						Usage: "superuser username (default: admin)",
+					},
+					&cli.StringFlag{
+						Name:  "email",
+						Value: "admin@local.com",
+						Usage: "superuser email (default: admin@local.com)",
+					},
+					&cli.StringFlag{
+						Name:  "password",
+						Value: "",
+						Usage: "superuser password (required)",
+					},
+				},
+				Action: func(cCtx *cli.Context) error {
+					if cCtx.String("password") == "" {
+						panic("--password not defined, --password is required, see init-superuser --help")
+					}
+					tasks.CreateSuperUser(".env", cCtx.String("email"), cCtx.String("username"), cCtx.String("password"))
+					fmt.Println("init superuser")
+					fmt.Println("email: " + cCtx.String("email"))
+					fmt.Println("username: " + cCtx.String("username"))
+					fmt.Println("password: " + cCtx.String("password"))
 					return nil
 				},
 			},
@@ -50,40 +85,4 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func runServer() {
-	// Initialize environtment variable
-	settings.InitiateSettings(".env")
-
-	// Initiate Database connection
-	models.Initiate()
-	models.AutoMigrate() // Run Migration
-
-	// Cors Middleware
-	router := gin.Default()
-	router.Use(cors.New(cors.Config{
-		AllowAllOrigins:        true,
-		AllowOrigins:           []string{},
-		AllowMethods:           []string{"GET", "POST", "PUT", "DELETE", "OPTION"},
-		AllowHeaders:           []string{"Origin", "Content-Type", "authorization", "accept"},
-		AllowCredentials:       true,
-		ExposeHeaders:          []string{"Content-Length"},
-		MaxAge:                 0,
-		AllowWildcard:          true,
-		AllowBrowserExtensions: true,
-		AllowWebSockets:        true,
-		AllowFiles:             true,
-	}))
-
-	// Initialize gin route
-	routes := routes.GetRoutes(router)
-
-	// setup swagger
-	docs.SwaggerInfo.BasePath = "/"
-	docs.SwaggerInfo.Host = settings.SERVER_HOST + ":" + settings.SERVER_PORT
-	routes.GET("/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-
-	// run gin server
-	routes.Run(settings.SERVER_HOST + ":" + settings.SERVER_PORT)
 }
