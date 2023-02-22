@@ -84,7 +84,7 @@ func GetAllUserRoute(c *gin.Context) {
 		searchNilable = &search
 	}
 
-	users, numData, numPage, err := repository.GetPaginatedUser(pageInt, pageSizeInt, searchNilable)
+	users, numData, numPage, err := repository.GetPaginatedUser(models.DBConn, pageInt, pageSizeInt, searchNilable)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, schemas.InternalServerErrorResponse{
 			Error: err.Error(),
@@ -124,6 +124,16 @@ func GetAllUserRoute(c *gin.Context) {
 //	@Failure		500	{object}	schemas.InternalServerErrorResponse
 //	@Router			/user/{id} [get]
 func GetDetailUserRoute(c *gin.Context) {
+	// Authorize User
+	_, err := core.GetUserFromAuthorizationHeader(models.DBConn, c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, schemas.UnauthorizedResponse{
+			Message: "Invalid/Expired token",
+		})
+		return
+	}
+
+	// Get Params
 	userId := c.Params.ByName("userId")
 	if !core.IsValidUUID(userId) {
 		c.JSON(http.StatusNotFound, schemas.NotFoundResponse{
@@ -132,7 +142,7 @@ func GetDetailUserRoute(c *gin.Context) {
 		return
 	}
 
-	user, err := repository.GetUserById(userId)
+	user, err := repository.GetUserById(models.DBConn, userId)
 	if err != nil {
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -169,8 +179,17 @@ func GetDetailUserRoute(c *gin.Context) {
 //	@Failure		500		{object}	schemas.InternalServerErrorResponse
 //	@Router			/user/ [post]
 func CreateUserRoute(c *gin.Context) {
+	// Authorize User
+	_, err := core.GetUserFromAuthorizationHeader(models.DBConn, c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, schemas.UnauthorizedResponse{
+			Message: "Invalid/Expired token",
+		})
+		return
+	}
+
 	var newUser schemas.UserCreateRequest
-	err := c.BindJSON(&newUser)
+	err = c.BindJSON(&newUser)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, schemas.BadRequestResponse{
 			Message: err.Error(),
@@ -179,7 +198,16 @@ func CreateUserRoute(c *gin.Context) {
 	}
 
 	now := time.Now()
-	createdUser, err := repository.CreateUser(newUser.Username, newUser.Email, newUser.Password, newUser.IsActive, newUser.IsSuperuser, now, &now)
+	createdUser, err := repository.CreateUser(
+		models.DBConn,
+		newUser.Username,
+		newUser.Email,
+		newUser.Password,
+		newUser.IsActive,
+		newUser.IsSuperuser,
+		now,
+		&now,
+	)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, schemas.InternalServerErrorResponse{
 			Error: err.Error(),
@@ -211,6 +239,15 @@ func CreateUserRoute(c *gin.Context) {
 //	@Failure		500		{object}	schemas.InternalServerErrorResponse
 //	@Router			/user/{id} [put]
 func UpdateUserRoute(c *gin.Context) {
+	// Authorize User
+	_, err := core.GetUserFromAuthorizationHeader(models.DBConn, c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, schemas.UnauthorizedResponse{
+			Message: "Invalid/Expired token",
+		})
+		return
+	}
+
 	// get input user
 	userId := c.Params.ByName("userId")
 	if !core.IsValidUUID(userId) {
@@ -220,7 +257,7 @@ func UpdateUserRoute(c *gin.Context) {
 		return
 	}
 	jsonRequest := schemas.UserUpdateRequest{}
-	err := c.BindJSON(&jsonRequest)
+	err = c.BindJSON(&jsonRequest)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, schemas.BadRequestResponse{
 			Message: err.Error(),
@@ -229,7 +266,7 @@ func UpdateUserRoute(c *gin.Context) {
 	}
 
 	// get existing user
-	user, err := repository.GetUserById(userId)
+	user, err := repository.GetUserById(models.DBConn, userId)
 	if err != nil {
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -246,6 +283,7 @@ func UpdateUserRoute(c *gin.Context) {
 
 	// update user
 	updatedUser, err := repository.UpdateUser(
+		models.DBConn,
 		user,
 		jsonRequest.Email,
 		jsonRequest.Username,
@@ -281,6 +319,15 @@ func UpdateUserRoute(c *gin.Context) {
 //	@Failure		500	{object}	schemas.InternalServerErrorResponse
 //	@Router			/user/{id} [delete]
 func DeleteUserRoute(c *gin.Context) {
+	// Authorize User
+	_, err := core.GetUserFromAuthorizationHeader(models.DBConn, c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, schemas.UnauthorizedResponse{
+			Message: "Invalid/Expired token",
+		})
+		return
+	}
+
 	// get input user
 	userId := c.Params.ByName("userId")
 	if !core.IsValidUUID(userId) {
@@ -291,7 +338,7 @@ func DeleteUserRoute(c *gin.Context) {
 	}
 
 	// get existing user
-	user, err := repository.GetUserById(userId)
+	user, err := repository.GetUserById(models.DBConn, userId)
 	if err != nil {
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -306,7 +353,7 @@ func DeleteUserRoute(c *gin.Context) {
 		return
 	}
 
-	_, err = repository.DeleteUser(user)
+	_, err = repository.DeleteUser(models.DBConn, user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, schemas.InternalServerErrorResponse{
 			Error: err.Error(),
