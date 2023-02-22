@@ -28,6 +28,7 @@ ON PROGRESS
     - CLI integration [v]
     - create superuser through cli [v]
     - run server througj cli [v]
+- Golang Migrate [] (https://github.com/golang-migrate/migrate)
 - Oauth2 Flow
     - create table oauth2_session []
     - client registration api /client-registration (generate client_id and client_secret) []
@@ -118,6 +119,10 @@ ON PROGRESS
 1. generate/refresh swagger.json `swag init`
 1. run server `go run main.go runserver`
 1. open swagger "http://{SERVER_HOST}:{SERVER_PORT}/docs/index.html"
+
+## Golang migrate
+refrences https://github.com/golang-migrate/migrate/tree/master/cmd/migrate
+- install golang migrate cli `go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest`
 
 ## Testing
 
