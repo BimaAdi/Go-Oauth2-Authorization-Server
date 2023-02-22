@@ -77,6 +77,7 @@ func (suite *MigrateTestSuite) TestGetPaginateUser() {
 	}
 
 	// When
+	// Test Get Paginate Success
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/user/?page=1&page_size=2", nil)
 	req.Header.Set("authorization", "Bearer "+token)
@@ -100,6 +101,7 @@ func (suite *MigrateTestSuite) TestGetPaginateUser() {
 	}
 
 	// When 2
+	// Test Check Pagination
 	w2 := httptest.NewRecorder()
 	req2, _ := http.NewRequest("GET", "/user/?page=2&page_size=2", nil)
 	req2.Header.Set("authorization", "Bearer "+token)
@@ -122,10 +124,38 @@ func (suite *MigrateTestSuite) TestGetPaginateUser() {
 		assert.Equal(suite.T(), expect_2[i].Email, jsonResponse2.Results[i].Email)
 		assert.Equal(suite.T(), expect_2[i].IsActive, jsonResponse2.Results[i].IsActive)
 	}
+
+	// When 3
+	// Test No Authorization
+	w3 := httptest.NewRecorder()
+	req3, _ := http.NewRequest("GET", "/user/?page=1&page_size=2", nil)
+	suite.router.ServeHTTP(w3, req3)
+
+	// Expect 3
+	assert.Equal(suite.T(), 401, w3.Code)
 }
 
 func (suite *MigrateTestSuite) TestGetDetailUser() {
 	// Given
+	// create request user
+	timeZoneAsiaJakarta, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		panic(err.Error())
+	}
+	request_user := models.User{
+		Email:       "a@test.com",
+		Username:    "a",
+		Password:    "Fakepassword",
+		IsActive:    true,
+		IsSuperuser: true,
+		CreatedAt:   time.Date(2022, 10, 5, 10, 0, 0, 0, timeZoneAsiaJakarta),
+	}
+	models.DBConn.Create(&request_user)
+	token, err := core.GenerateJWTTokenFromUser(models.DBConn, request_user)
+	if err != nil {
+		panic(err.Error())
+	}
+	// Create user for test
 	givenW := httptest.NewRecorder()
 	requestJson := schemas.UserCreateRequest{
 		Username:    "test",
@@ -137,15 +167,18 @@ func (suite *MigrateTestSuite) TestGetDetailUser() {
 	requestJsonByte, _ := json.Marshal(requestJson)
 	req, _ := http.NewRequest("POST", "/user/", bytes.NewBuffer(requestJsonByte))
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("authorization", "Bearer "+token)
 	suite.router.ServeHTTP(givenW, req)
 	assert.Equal(suite.T(), 201, givenW.Code)
 	givenJsonResponse := schemas.UserCreateResponse{}
-	err := json.Unmarshal(givenW.Body.Bytes(), &givenJsonResponse)
+	err = json.Unmarshal(givenW.Body.Bytes(), &givenJsonResponse)
 	assert.Nil(suite.T(), err, "Invalid response json")
 
 	// When 1
+	// Test success create user
 	w1 := httptest.NewRecorder()
 	req, _ = http.NewRequest("GET", "/user/"+givenJsonResponse.Id, nil)
+	req.Header.Set("authorization", "Bearer "+token)
 	suite.router.ServeHTTP(w1, req)
 
 	// Expect 1
@@ -155,8 +188,10 @@ func (suite *MigrateTestSuite) TestGetDetailUser() {
 	assert.Nil(suite.T(), err, "Invalid response json")
 
 	// When 2
+	// Test user not found
 	w2 := httptest.NewRecorder()
 	req, _ = http.NewRequest("GET", "/user/aaaa-bbbbb-ccccc-ddddd", nil)
+	req.Header.Set("authorization", "Bearer "+token)
 	suite.router.ServeHTTP(w2, req)
 
 	// Expect 2
@@ -164,13 +199,40 @@ func (suite *MigrateTestSuite) TestGetDetailUser() {
 	jsonResponse2 := schemas.UserDetailResponse{}
 	err = json.Unmarshal(w2.Body.Bytes(), &jsonResponse2)
 	assert.Nil(suite.T(), err, "Invalid response json")
+
+	// When 3
+	// Test No Authorization
+	w3 := httptest.NewRecorder()
+	req3, _ := http.NewRequest("GET", "/user/"+givenJsonResponse.Id, nil)
+	suite.router.ServeHTTP(w3, req3)
+
+	// Expect 3
+	assert.Equal(suite.T(), 401, w3.Code)
 }
 
 func (suite *MigrateTestSuite) TestCreateUser() {
 	// Given
-	suite.T().Log("test create user")
+	// create request user
+	timeZoneAsiaJakarta, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		panic(err.Error())
+	}
+	request_user := models.User{
+		Email:       "a@test.com",
+		Username:    "a",
+		Password:    "Fakepassword",
+		IsActive:    true,
+		IsSuperuser: true,
+		CreatedAt:   time.Date(2022, 10, 5, 10, 0, 0, 0, timeZoneAsiaJakarta),
+	}
+	models.DBConn.Create(&request_user)
+	token, err := core.GenerateJWTTokenFromUser(models.DBConn, request_user)
+	if err != nil {
+		panic(err.Error())
+	}
 
 	// When
+	// Test Create User Success
 	w := httptest.NewRecorder()
 	requestJson := schemas.UserCreateRequest{
 		Username:    "test",
@@ -182,12 +244,13 @@ func (suite *MigrateTestSuite) TestCreateUser() {
 	requestJsonByte, _ := json.Marshal(requestJson)
 	req, _ := http.NewRequest("POST", "/user/", bytes.NewBuffer(requestJsonByte))
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("authorization", "Bearer "+token)
 	suite.router.ServeHTTP(w, req)
 
 	// Expect
 	assert.Equal(suite.T(), 201, w.Code)
 	jsonResponse := schemas.UserCreateResponse{}
-	err := json.Unmarshal(w.Body.Bytes(), &jsonResponse)
+	err = json.Unmarshal(w.Body.Bytes(), &jsonResponse)
 	assert.Nil(suite.T(), err, "Invalid response json")
 
 	createdUser := models.User{}
@@ -199,10 +262,47 @@ func (suite *MigrateTestSuite) TestCreateUser() {
 	assert.Equal(suite.T(), requestJson.IsActive, createdUser.IsActive)
 	assert.Equal(suite.T(), requestJson.IsSuperuser, createdUser.IsSuperuser)
 	assert.NotNil(suite.T(), createdUser.CreatedAt)
+
+	// When 2
+	// Test No Authorization
+	w2 := httptest.NewRecorder()
+	requestJson2 := schemas.UserCreateRequest{
+		Username:    "test",
+		Password:    "testpassword",
+		Email:       "test@example.com",
+		IsActive:    true,
+		IsSuperuser: true,
+	}
+	requestJsonByte2, _ := json.Marshal(requestJson2)
+	req2, _ := http.NewRequest("POST", "/user/", bytes.NewBuffer(requestJsonByte2))
+	req2.Header.Set("Content-Type", "application/json")
+	suite.router.ServeHTTP(w2, req2)
+
+	// Expect 2
+	assert.Equal(suite.T(), 401, w2.Code)
 }
 
 func (suite *MigrateTestSuite) TestUpdateUser() {
 	// Given
+	// create request user
+	timeZoneAsiaJakarta, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		panic(err.Error())
+	}
+	request_user := models.User{
+		Email:       "a@test.com",
+		Username:    "a",
+		Password:    "Fakepassword",
+		IsActive:    true,
+		IsSuperuser: true,
+		CreatedAt:   time.Date(2022, 10, 5, 10, 0, 0, 0, timeZoneAsiaJakarta),
+	}
+	models.DBConn.Create(&request_user)
+	token, err := core.GenerateJWTTokenFromUser(models.DBConn, request_user)
+	if err != nil {
+		panic(err.Error())
+	}
+	// create user for test
 	givenW := httptest.NewRecorder()
 	requestJson := schemas.UserCreateRequest{
 		Username:    "test",
@@ -214,13 +314,15 @@ func (suite *MigrateTestSuite) TestUpdateUser() {
 	requestJsonByte, _ := json.Marshal(requestJson)
 	req, _ := http.NewRequest("POST", "/user/", bytes.NewBuffer(requestJsonByte))
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("authorization", "Bearer "+token)
 	suite.router.ServeHTTP(givenW, req)
 	assert.Equal(suite.T(), 201, givenW.Code)
 	givenJsonResponse := schemas.UserCreateResponse{}
-	err := json.Unmarshal(givenW.Body.Bytes(), &givenJsonResponse)
+	err = json.Unmarshal(givenW.Body.Bytes(), &givenJsonResponse)
 	assert.Nil(suite.T(), err, "Invalid response json")
 
 	// When 1
+	// Test Update User success
 	w1 := httptest.NewRecorder()
 	password := "testpassword"
 	requestJson1 := schemas.UserUpdateRequest{
@@ -232,6 +334,7 @@ func (suite *MigrateTestSuite) TestUpdateUser() {
 	}
 	requestJsonByte1, _ := json.Marshal(requestJson1)
 	req, _ = http.NewRequest("PUT", "/user/"+givenJsonResponse.Id, bytes.NewBuffer(requestJsonByte1))
+	req.Header.Set("authorization", "Bearer "+token)
 	suite.router.ServeHTTP(w1, req)
 
 	// Expect 1
@@ -241,6 +344,7 @@ func (suite *MigrateTestSuite) TestUpdateUser() {
 	assert.Nil(suite.T(), err, "Invalid response json")
 
 	// When 2
+	// Test Update User not found
 	w2 := httptest.NewRecorder()
 	password2 := "testpassword2"
 	requestJson2 := schemas.UserUpdateRequest{
@@ -252,6 +356,7 @@ func (suite *MigrateTestSuite) TestUpdateUser() {
 	}
 	requestJsonByte2, _ := json.Marshal(requestJson2)
 	req, _ = http.NewRequest("PUT", "/user/aaaaa-bbbbb-ccccc", bytes.NewBuffer(requestJsonByte2))
+	req.Header.Set("authorization", "Bearer "+token)
 	suite.router.ServeHTTP(w2, req)
 
 	// Expect 2
@@ -259,10 +364,47 @@ func (suite *MigrateTestSuite) TestUpdateUser() {
 	jsonResponse2 := schemas.NotFoundResponse{}
 	err = json.Unmarshal(w1.Body.Bytes(), &jsonResponse2)
 	assert.Nil(suite.T(), err, "Invalid response json")
+
+	// When 3
+	// Test No Authorization
+	w3 := httptest.NewRecorder()
+	password3 := "testpassword"
+	requestJson3 := schemas.UserUpdateRequest{
+		Username:    "test",
+		Password:    &password3,
+		Email:       "test@example.com",
+		IsActive:    true,
+		IsSuperuser: true,
+	}
+	requestJsonByte3, _ := json.Marshal(requestJson3)
+	req3, _ := http.NewRequest("PUT", "/user/"+givenJsonResponse.Id, bytes.NewBuffer(requestJsonByte3))
+	suite.router.ServeHTTP(w3, req3)
+
+	// Expect 3
+	assert.Equal(suite.T(), 401, w3.Code)
 }
 
 func (suite *MigrateTestSuite) TestDeleteUser() {
 	// Given
+	// create request user
+	timeZoneAsiaJakarta, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		panic(err.Error())
+	}
+	request_user := models.User{
+		Email:       "a@test.com",
+		Username:    "a",
+		Password:    "Fakepassword",
+		IsActive:    true,
+		IsSuperuser: true,
+		CreatedAt:   time.Date(2022, 10, 5, 10, 0, 0, 0, timeZoneAsiaJakarta),
+	}
+	models.DBConn.Create(&request_user)
+	token, err := core.GenerateJWTTokenFromUser(models.DBConn, request_user)
+	if err != nil {
+		panic(err.Error())
+	}
+	// create user for test
 	w := httptest.NewRecorder()
 	requestJson := schemas.UserCreateRequest{
 		Username:    "test",
@@ -274,35 +416,52 @@ func (suite *MigrateTestSuite) TestDeleteUser() {
 	requestJsonByte, _ := json.Marshal(requestJson)
 	req, _ := http.NewRequest("POST", "/user/", bytes.NewBuffer(requestJsonByte))
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("authorization", "Bearer "+token)
 	suite.router.ServeHTTP(w, req)
 	assert.Equal(suite.T(), 201, w.Code)
 	jsonResponse := schemas.UserCreateResponse{}
-	err := json.Unmarshal(w.Body.Bytes(), &jsonResponse)
+	err = json.Unmarshal(w.Body.Bytes(), &jsonResponse)
 	assert.Nil(suite.T(), err, "Invalid response json")
 
 	// When 1
+	// Test Delete User Success
 	w1 := httptest.NewRecorder()
 	req, _ = http.NewRequest("DELETE", "/user/"+jsonResponse.Id, nil)
+	req.Header.Set("authorization", "Bearer "+token)
 	suite.router.ServeHTTP(w1, req)
 
 	// Expect 1
 	assert.Equal(suite.T(), 204, w1.Code)
 
 	// When 2
+	// Test Delete User Not Found due soft delete
 	w2 := httptest.NewRecorder()
 	req, _ = http.NewRequest("DELETE", "/user/"+jsonResponse.Id, nil)
+	req.Header.Set("authorization", "Bearer "+token)
 	suite.router.ServeHTTP(w2, req)
 
 	// Expect 2
 	assert.Equal(suite.T(), 404, w2.Code)
 
 	// When 3
+	// Test Delete User Not Found
 	w3 := httptest.NewRecorder()
-	req, _ = http.NewRequest("GET", "/user/"+jsonResponse.Id, nil)
+	req, _ = http.NewRequest("GET", "/user/aaaa-bbbb-cccc", nil)
+	req.Header.Set("authorization", "Bearer "+token)
 	suite.router.ServeHTTP(w3, req)
 
 	// Expect 3
 	assert.Equal(suite.T(), 404, w3.Code)
+
+	// When 4
+	// Test No Authorization
+	w4 := httptest.NewRecorder()
+	req4, _ := http.NewRequest("DELETE", "/user/"+jsonResponse.Id, nil)
+	req.Header.Set("authorization", "Bearer "+token)
+	suite.router.ServeHTTP(w4, req4)
+
+	// Expect 4
+	assert.Equal(suite.T(), 401, w4.Code)
 }
 
 // ==========================================

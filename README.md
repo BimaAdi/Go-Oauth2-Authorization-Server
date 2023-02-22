@@ -16,7 +16,7 @@ ON PROGRESS
     - Update User Test [v]
     - Delete User [v] (soft delete and logic if user already exists)
     - Delete User Test [v]
-    - Authorization For CRUD User []
+    - Authorization For CRUD User [v]
 - Authentication
     - Simple email password login /auth/login [v]
     - JWT token [v] (https://github.com/lestrrat-go/jwx)

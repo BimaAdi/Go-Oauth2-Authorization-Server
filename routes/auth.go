@@ -29,15 +29,17 @@ func authRoutes(rq *gin.RouterGroup) {
 //	@Router			/auth/login [post]
 func authLoginRoute(c *gin.Context) {
 	// Get data from form
-	username := c.PostForm("username")
-	password := c.PostForm("password")
-	formRequest := schemas.LoginFormRequest{
-		Username: username,
-		Password: password,
+	formRequest := schemas.LoginFormRequest{}
+	err := c.ShouldBind(&formRequest)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, schemas.BadRequestResponse{
+			Message: err.Error(),
+		})
+		return
 	}
 
 	// Get User
-	user, err := repository.GetUserByUsername(formRequest.Username)
+	user, err := repository.GetUserByUsername(models.DBConn, formRequest.Username)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, schemas.BadRequestResponse{
 			Message: "invalid credentials",

@@ -6,14 +6,15 @@ import (
 
 	"github.com/BimaAdi/Oauth2AuthorizationServer/core"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/models"
+	"gorm.io/gorm"
 )
 
-func GetPaginatedUser(page int, pageSize int, search *string) ([]models.User, int64, int64, error) {
+func GetPaginatedUser(tx *gorm.DB, page int, pageSize int, search *string) ([]models.User, int64, int64, error) {
 	limit := pageSize
 	offset := (page - 1) * pageSize
 
-	query := models.DBConn.Where("deleted_at IS NULL")
-	countQuery := models.DBConn.Where("deleted_at IS NULL")
+	query := tx.Where("deleted_at IS NULL")
+	countQuery := tx.Where("deleted_at IS NULL")
 
 	users := []models.User{}
 
@@ -38,15 +39,15 @@ func GetPaginatedUser(page int, pageSize int, search *string) ([]models.User, in
 	return users, numData, int64(numPage), nil
 }
 
-func GetUserById(id string) (models.User, error) {
+func GetUserById(tx *gorm.DB, id string) (models.User, error) {
 	user := models.User{}
-	if err := models.DBConn.Where("id = ? AND deleted_at IS NULL", id).First(&user).Error; err != nil {
+	if err := tx.Where("id = ? AND deleted_at IS NULL", id).First(&user).Error; err != nil {
 		return user, err
 	}
 	return user, nil
 }
 
-func CreateUser(username string, email string, password string, isActive bool, isSuperuser bool, createdAt time.Time, updatedAt *time.Time) (models.User, error) {
+func CreateUser(tx *gorm.DB, username string, email string, password string, isActive bool, isSuperuser bool, createdAt time.Time, updatedAt *time.Time) (models.User, error) {
 	hashedPassword, err := core.HashPassword(password)
 	if err != nil {
 		return models.User{}, err
@@ -63,13 +64,13 @@ func CreateUser(username string, email string, password string, isActive bool, i
 		DeletedAt:   nil,
 	}
 
-	if err := models.DBConn.Create(&newUser).Error; err != nil {
+	if err := tx.Create(&newUser).Error; err != nil {
 		return newUser, err
 	}
 	return newUser, nil
 }
 
-func UpdateUser(updatedUser models.User, email string, username string, password *string, isActive bool, isSuperUser bool) (models.User, error) {
+func UpdateUser(tx *gorm.DB, updatedUser models.User, email string, username string, password *string, isActive bool, isSuperUser bool) (models.User, error) {
 	// Hashed Password
 	if password != nil {
 		rawPassword := password
@@ -87,24 +88,24 @@ func UpdateUser(updatedUser models.User, email string, username string, password
 	updatedUser.IsSuperuser = isSuperUser
 	now := time.Now()
 	updatedUser.UpdatedAt = &now
-	if err := models.DBConn.Save(&updatedUser).Error; err != nil {
+	if err := tx.Save(&updatedUser).Error; err != nil {
 		return updatedUser, err
 	}
 	return updatedUser, nil
 }
 
-func DeleteUser(user models.User) (models.User, error) {
+func DeleteUser(tx *gorm.DB, user models.User) (models.User, error) {
 	now := time.Now()
 	user.DeletedAt = &now
-	if err := models.DBConn.Save(&user).Error; err != nil {
+	if err := tx.Save(&user).Error; err != nil {
 		return user, err
 	}
 	return user, nil
 }
 
-func GetUserByUsername(username string) (models.User, error) {
+func GetUserByUsername(tx *gorm.DB, username string) (models.User, error) {
 	user := models.User{}
-	if err := models.DBConn.Where("username = ? AND deleted_at IS NULL", username).First(&user).Error; err != nil {
+	if err := tx.Where("username = ? AND deleted_at IS NULL", username).First(&user).Error; err != nil {
 		return user, err
 	}
 	return user, nil

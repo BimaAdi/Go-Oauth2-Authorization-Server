@@ -16,5 +16,5 @@ func CreateSuperUser(envPath string, email string, username string, password str
 	models.Initiate()
 
 	now := time.Now()
-	repository.CreateUser(username, email, password, true, true, now, &now)
+	repository.CreateUser(models.DBConn, username, email, password, true, true, now, &now)
 }
