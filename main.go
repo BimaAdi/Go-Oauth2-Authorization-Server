@@ -6,17 +6,18 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/BimaAdi/Oauth2AuthorizationServer/migrations"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/tasks"
 	"github.com/urfave/cli/v2"
 )
 
-// @title									Go Oauth2 Authorization Server
-// @version								1.0
-// @description							Oauth2 Authorization server
+//	@title									Go Oauth2 Authorization Server
+//	@version								1.0
+//	@description							Oauth2 Authorization server
 //
-// @securitydefinitions.oauth2.password	OAuth2Password
-// @tokenurl								/auth/login
-// @BasePath								/
+//	@securitydefinitions.oauth2.password	OAuth2Password
+//	@tokenurl								/auth/login
+//	@BasePath								/
 func main() {
 	app := &cli.App{
 		Commands: []*cli.Command{
@@ -48,7 +49,7 @@ func main() {
 						Aliases: []string{"u"},
 						Usage:   "migrate up (create all tables)",
 						Action: func(cCtx *cli.Context) error {
-							tasks.MigrateUp(".env", "file://migrations/migrations_files/")
+							migrations.MigrateUp(".env", "file://migrations/migrations_files/")
 							return nil
 						},
 					},
@@ -57,7 +58,7 @@ func main() {
 						Aliases: []string{"v"},
 						Usage:   "show current migrate version",
 						Action: func(cCtx *cli.Context) error {
-							version := tasks.GetMigrateVersion(".env", "file://migrations/migrations_files/")
+							version := migrations.GetMigrateVersion(".env", "file://migrations/migrations_files/")
 							fmt.Println(version)
 							return nil
 						},
@@ -71,7 +72,7 @@ func main() {
 							if err != nil {
 								panic(err.Error())
 							}
-							tasks.MigrateStep(".env", "file://migrations/migrations_files/", &stepInt)
+							migrations.MigrateStep(".env", "file://migrations/migrations_files/", &stepInt)
 							return nil
 						},
 					},
@@ -80,7 +81,7 @@ func main() {
 						Aliases: []string{"d"},
 						Usage:   "migrate down (delete all tables)",
 						Action: func(cCtx *cli.Context) error {
-							tasks.MigrateDown(".env", "file://migrations/migrations_files/")
+							migrations.MigrateDown(".env", "file://migrations/migrations_files/")
 							return nil
 						},
 					},

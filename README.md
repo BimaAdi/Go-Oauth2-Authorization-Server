@@ -28,7 +28,7 @@ ON PROGRESS
     - CLI integration [v]
     - create superuser through cli [v]
     - run server througj cli [v]
-- Golang Migrate [] (https://github.com/golang-migrate/migrate)
+- Golang Migrate [v] (https://github.com/golang-migrate/migrate)
 - Oauth2 Flow
     - create table oauth2_session []
     - client registration api /client-registration (generate client_id and client_secret) []
@@ -114,11 +114,15 @@ ON PROGRESS
 - Postgres ver 14
 
 ## Instalation (for development)
-1. `go install github.com/swaggo/swag/cmd/swag@latest`
+1. install swaggo `go install github.com/swaggo/swag/cmd/swag@latest`
+1. install golang migrate `go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest`
 1. copy .env.example to .env and fill based on your postgres configuration and set env as "dev"
 1. generate/refresh swagger.json `swag init`
+1. migrate database `go run main.go migrate-db up`
+1. init superuser `go run main.go init-superuser --username {username} --email {email} --password {password}`
 1. run server `go run main.go runserver`
 1. open swagger "http://{SERVER_HOST}:{SERVER_PORT}/docs/index.html"
+1. login using username and password
 
 ## Golang migrate
 ### Install golang migrate
