@@ -121,8 +121,18 @@ ON PROGRESS
 1. open swagger "http://{SERVER_HOST}:{SERVER_PORT}/docs/index.html"
 
 ## Golang migrate
+### Install golang migrate
 refrences https://github.com/golang-migrate/migrate/tree/master/cmd/migrate
 - install golang migrate cli `go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest`
+### create new migration
+1. `migrate create -ext sql --dir ./migrations/migrations_files/ {migration name}`
+2. Edit newly created up.sql and down.sql
+### Migrate database
+#### Using golang migrate
+- change every {} based on your postgresql configuration 
+`migrate -source file://migrations/migrations_files/ -database postgres://{username}:{password}@{host}:{port}/{database}?sslmode={require/verify-full/verify-ca/disable} up`
+#### Using cli
+- see `go run main.go migrate-db --help`
 
 ## Testing
 
