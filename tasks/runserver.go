@@ -17,7 +17,6 @@ func RunServer(envPath string) {
 
 	// Initiate Database connection
 	models.Initiate()
-	models.AutoMigrate() // Run Migration
 
 	// Cors Middleware
 	router := gin.Default()

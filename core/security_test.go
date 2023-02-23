@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/BimaAdi/Oauth2AuthorizationServer/core"
+	"github.com/BimaAdi/Oauth2AuthorizationServer/migrations"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/models"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/settings"
 	"github.com/stretchr/testify/assert"
@@ -33,7 +34,7 @@ type MigrateTestSuite struct {
 func (suite *MigrateTestSuite) SetupSuite() {
 	settings.InitiateSettings("../.env")
 	models.Initiate()
-	models.AutoMigrate()
+	migrations.MigrateUp("../.env", "file://../migrations/migrations_files/")
 }
 
 func (suite *MigrateTestSuite) SetupTest() {

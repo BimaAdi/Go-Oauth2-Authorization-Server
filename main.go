@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
+	"github.com/BimaAdi/Oauth2AuthorizationServer/migrations"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/tasks"
 	"github.com/urfave/cli/v2"
 )
@@ -41,9 +43,48 @@ func main() {
 				Name:    "migrate-db",
 				Aliases: []string{"md"},
 				Usage:   "migrate database",
-				Action: func(cCtx *cli.Context) error {
-					tasks.MigrateDB(".env")
-					return nil
+				Subcommands: []*cli.Command{
+					{
+						Name:    "up",
+						Aliases: []string{"u"},
+						Usage:   "migrate up (create all tables)",
+						Action: func(cCtx *cli.Context) error {
+							migrations.MigrateUp(".env", "file://migrations/migrations_files/")
+							return nil
+						},
+					},
+					{
+						Name:    "version",
+						Aliases: []string{"v"},
+						Usage:   "show current migrate version",
+						Action: func(cCtx *cli.Context) error {
+							version := migrations.GetMigrateVersion(".env", "file://migrations/migrations_files/")
+							fmt.Println(version)
+							return nil
+						},
+					},
+					{
+						Name:    "step",
+						Aliases: []string{"s"},
+						Usage:   "migrate to certain version, migrate step {version num}",
+						Action: func(cCtx *cli.Context) error {
+							stepInt, err := strconv.Atoi(cCtx.Args().First())
+							if err != nil {
+								panic(err.Error())
+							}
+							migrations.MigrateStep(".env", "file://migrations/migrations_files/", &stepInt)
+							return nil
+						},
+					},
+					{
+						Name:    "down",
+						Aliases: []string{"d"},
+						Usage:   "migrate down (delete all tables)",
+						Action: func(cCtx *cli.Context) error {
+							migrations.MigrateDown(".env", "file://migrations/migrations_files/")
+							return nil
+						},
+					},
 				},
 			},
 			{

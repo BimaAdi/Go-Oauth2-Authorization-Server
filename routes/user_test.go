@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/BimaAdi/Oauth2AuthorizationServer/core"
+	"github.com/BimaAdi/Oauth2AuthorizationServer/migrations"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/models"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/routes"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/schemas"
@@ -26,7 +27,7 @@ type MigrateTestSuite struct {
 func (suite *MigrateTestSuite) SetupSuite() {
 	settings.InitiateSettings("../.env")
 	models.Initiate()
-	models.AutoMigrate()
+	migrations.MigrateUp("../.env", "file://../migrations/migrations_files/")
 	router := gin.Default()
 	suite.router = routes.GetRoutes(router)
 }
