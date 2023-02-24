@@ -8,11 +8,13 @@ import (
 )
 
 type Oauth2Session struct {
-	ID        string    `gorm:"primaryKey;type:uuid;index"`
-	UserId    string    `gorm:"index"`
-	User      User      `gorm:"foreignKey:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	IsActive  bool      `gorm:"column:is_active;default:true"`
-	CreatedAt time.Time `gorm:"column:created_at;type:timestamp with time zone;"`
+	ID           string    `gorm:"primaryKey;type:uuid;index"`
+	UserId       string    `gorm:"column:user_id;index;"`
+	User         User      `gorm:"foreignKey:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	ClientID     string    `gorm:"column:client_id;not null;"`
+	ClientSecret string    `gorm:"column:client_secret;not null;"`
+	IsActive     bool      `gorm:"column:is_active;default:true"`
+	CreatedAt    time.Time `gorm:"column:created_at;type:timestamp with time zone;"`
 }
 
 func (Oauth2Session) TableName() string {
