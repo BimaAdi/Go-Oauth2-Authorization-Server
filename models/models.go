@@ -41,15 +41,16 @@ func Initiate() {
 func AutoMigrate() {
 	// add models here
 	fmt.Println("Migrate Database")
-	DBConn.AutoMigrate(&User{})
+	DBConn.AutoMigrate(&User{}, &Oauth2Session{})
 }
 
 func AutoRollback() {
 	fmt.Println("Rollback Database")
-	DBConn.Migrator().DropTable(&User{})
+	DBConn.Migrator().DropTable(&Oauth2Session{}, &User{})
 }
 
 func ClearAllData() {
 	fmt.Println("Clear All Data")
+	DBConn.Exec("DELETE FROM public.oauth2_session")
 	DBConn.Exec("DELETE FROM public.user")
 }

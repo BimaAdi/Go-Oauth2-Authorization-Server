@@ -85,6 +85,40 @@ func main() {
 							return nil
 						},
 					},
+					{
+						Name:    "force-up",
+						Aliases: []string{"fu"},
+						Usage:   "force create all table without update migration version",
+						Action: func(cCtx *cli.Context) error {
+							var input string
+							fmt.Print("Are you sure want to create all table without migration? [Y/n] ")
+							fmt.Scanf("%s", &input)
+							if input == "Y" {
+								fmt.Println("Start Create all table")
+								tasks.ForceMigrate(".env")
+							} else {
+								fmt.Println("Cancel Create All table")
+							}
+							return nil
+						},
+					},
+					{
+						Name:    "force-down",
+						Aliases: []string{"fd"},
+						Usage:   "force drop all table and remove migration version",
+						Action: func(cCtx *cli.Context) error {
+							var input string
+							fmt.Print("Are you sure want to drop all table? [Y/n] ")
+							fmt.Scanf("%s", &input)
+							if input == "Y" {
+								fmt.Println("Start Drop all table")
+								tasks.ForceRollback(".env")
+							} else {
+								fmt.Println("Cancel Drop All table")
+							}
+							return nil
+						},
+					},
 				},
 			},
 			{
