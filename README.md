@@ -29,9 +29,9 @@ ON PROGRESS
     - create superuser through cli [v]
     - run server througj cli [v]
 - Golang Migrate [v] (https://github.com/golang-migrate/migrate)
-- Oauth2 Flow
-    - create table oauth2_session []
-    - client registration api /client-registration (generate client_id and client_secret) []
+- Oauth2 Flow (https://www.oauth.com/, https://oauth.net/)
+    - create table oauth2_session [v]
+    - client registration api /client-registration (generate client_id and client_secret) [v]
     - Oauth2 redirect ui
         - login ui []
         - forgot password ui []

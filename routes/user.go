@@ -122,6 +122,7 @@ func GetAllUserRoute(c *gin.Context) {
 //	@Failure		400	{object}	schemas.BadRequestResponse
 //	@Failure		404	{object}	schemas.NotFoundResponse
 //	@Failure		500	{object}	schemas.InternalServerErrorResponse
+//	@Security		OAuth2Password
 //	@Router			/user/{id} [get]
 func GetDetailUserRoute(c *gin.Context) {
 	// Authorize User
@@ -177,6 +178,7 @@ func GetDetailUserRoute(c *gin.Context) {
 //	@Success		200		{object}	schemas.UserCreateResponse
 //	@Failure		400		{object}	schemas.BadRequestResponse
 //	@Failure		500		{object}	schemas.InternalServerErrorResponse
+//	@Security		OAuth2Password
 //	@Router			/user/ [post]
 func CreateUserRoute(c *gin.Context) {
 	// Authorize User
@@ -237,6 +239,7 @@ func CreateUserRoute(c *gin.Context) {
 //	@Failure		400		{object}	schemas.BadRequestResponse
 //	@Failure		404		{object}	schemas.NotFoundResponse
 //	@Failure		500		{object}	schemas.InternalServerErrorResponse
+//	@Security		OAuth2Password
 //	@Router			/user/{id} [put]
 func UpdateUserRoute(c *gin.Context) {
 	// Authorize User
@@ -317,6 +320,7 @@ func UpdateUserRoute(c *gin.Context) {
 //	@Success		204
 //	@Failure		404	{object}	schemas.NotFoundResponse
 //	@Failure		500	{object}	schemas.InternalServerErrorResponse
+//	@Security		OAuth2Password
 //	@Router			/user/{id} [delete]
 func DeleteUserRoute(c *gin.Context) {
 	// Authorize User

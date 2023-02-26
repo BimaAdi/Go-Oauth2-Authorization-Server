@@ -85,6 +85,40 @@ func main() {
 							return nil
 						},
 					},
+					{
+						Name:    "force-up",
+						Aliases: []string{"fu"},
+						Usage:   "force create all table without update migration version",
+						Action: func(cCtx *cli.Context) error {
+							var input string
+							fmt.Print("Are you sure want to create all table without migration? [Y/n] ")
+							fmt.Scanf("%s", &input)
+							if input == "Y" {
+								fmt.Println("Start Create all table")
+								tasks.ForceMigrate(".env")
+							} else {
+								fmt.Println("Cancel Create All table")
+							}
+							return nil
+						},
+					},
+					{
+						Name:    "force-down",
+						Aliases: []string{"fd"},
+						Usage:   "force drop all table and remove migration version",
+						Action: func(cCtx *cli.Context) error {
+							var input string
+							fmt.Print("Are you sure want to drop all table? [Y/n] ")
+							fmt.Scanf("%s", &input)
+							if input == "Y" {
+								fmt.Println("Start Drop all table")
+								tasks.ForceRollback(".env")
+							} else {
+								fmt.Println("Cancel Drop All table")
+							}
+							return nil
+						},
+					},
 				},
 			},
 			{
@@ -117,6 +151,29 @@ func main() {
 					fmt.Println("email: " + cCtx.String("email"))
 					fmt.Println("username: " + cCtx.String("username"))
 					fmt.Println("password: " + cCtx.String("password"))
+					return nil
+				},
+			},
+			{
+				Name:    "generate-client-id",
+				Aliases: []string{"gci"},
+				Usage:   "generate client_id and client_secret for user",
+				Action: func(cCtx *cli.Context) error {
+					var usernameOrEmail string
+					name := ""
+					description := ""
+					fmt.Print("Username or Email: ")
+					fmt.Scanf("%s", &usernameOrEmail)
+					fmt.Print("name: ")
+					fmt.Scanf("%s", &name)
+					fmt.Print("description: ")
+					fmt.Scanf("%s", &description)
+					client_id, client_secret := tasks.GenerateClientId(".env", usernameOrEmail, name, description)
+					if client_id != "" && client_secret != "" {
+						fmt.Println("Generate Success")
+						fmt.Println("client_id: " + client_id)
+						fmt.Println("client_secret: " + client_secret)
+					}
 					return nil
 				},
 			},
