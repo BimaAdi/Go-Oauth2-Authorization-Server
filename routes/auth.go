@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -165,7 +164,6 @@ func getClientIdClientSecret(c *gin.Context) {
 	// construct json
 	arraySession := []schemas.ClientRegiterResponse{}
 	for _, item := range requestUser.Oauth2Sessions {
-		fmt.Println(item)
 		arraySession = append(arraySession, schemas.ClientRegiterResponse{
 			Name:         item.Name,
 			Description:  item.Description,
