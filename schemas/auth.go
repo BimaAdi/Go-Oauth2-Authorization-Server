@@ -21,3 +21,7 @@ type ClientRegiterResponse struct {
 	ClientId     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
 }
+
+type ArrayClientRegisterResponse struct {
+	Data []ClientRegiterResponse `json:"data"`
+}

@@ -202,6 +202,64 @@ func (suite *MigrateAuthTestSuite) TestRegisterClientForbidden() {
 	assert.Equal(suite.T(), 403, w.Code)
 }
 
+func (suite *MigrateAuthTestSuite) TestGetClientIdClientSecret() {
+	// Given
+	timeZoneAsiaJakarta, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		panic(err.Error())
+	}
+	hashPasword, err := core.HashPassword("Fakepassword")
+	if err != nil {
+		panic(err.Error())
+	}
+	userSessions := []models.Oauth2Session{
+		{
+			Name:         "app 1",
+			Description:  "for app 1",
+			ClientID:     "aaaabbbbccc",
+			ClientSecret: "dddeeefff",
+		},
+		{
+			Name:         "app 2",
+			Description:  "for app 2",
+			ClientID:     "dddeeefff",
+			ClientSecret: "aaaabbbbccc",
+		},
+	}
+	requestUser := models.User{
+		Email:          "test@test.com",
+		Username:       "test",
+		Password:       hashPasword,
+		IsActive:       true,
+		IsSuperuser:    true,
+		CreatedAt:      time.Date(2022, 10, 5, 10, 0, 0, 0, timeZoneAsiaJakarta),
+		Oauth2Sessions: userSessions,
+	}
+	models.DBConn.Create(&requestUser)
+	token, err := core.GenerateJWTTokenFromUser(models.DBConn, requestUser)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// When
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/auth/client-id-client-secret/", nil)
+	req.Header.Set("authorization", "Bearer "+token)
+	suite.router.ServeHTTP(w, req)
+
+	// Expect
+	assert.Equal(suite.T(), 200, w.Code)
+	jsonResponse := schemas.ArrayClientRegisterResponse{}
+	err = json.Unmarshal(w.Body.Bytes(), &jsonResponse)
+	assert.Nil(suite.T(), err, "Invalid response json")
+	for index, item := range userSessions {
+		assert.Equal(suite.T(), item.Name, jsonResponse.Data[index].Name)
+		assert.Equal(suite.T(), item.Description, jsonResponse.Data[index].Description)
+		assert.Equal(suite.T(), item.ClientID, jsonResponse.Data[index].ClientId)
+		assert.Equal(suite.T(), item.ClientSecret, jsonResponse.Data[index].ClientSecret)
+	}
+}
+
 func (suite *MigrateAuthTestSuite) TearDownTest() {
 	models.ClearAllData()
 }
