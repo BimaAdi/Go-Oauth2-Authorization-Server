@@ -72,6 +72,19 @@ func authLoginRoute(c *gin.Context) {
 	})
 }
 
+// Register Client
+//
+//	@Summary		register client
+//	@Description	generate client_id and client_secret for request user
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			register	body		schemas.ClientRegiterRequest	true	"register client"
+//	@Success		201			{object}	schemas.ClientRegiterResponse
+//	@Failure		403			{object}	schemas.ForbiddenResponse
+//	@Failure		500			{object}	schemas.InternalServerErrorResponse
+//	@Security		OAuth2Password
+//	@Router			/auth/register-client [post]
 func registerClientRoute(c *gin.Context) {
 	// Authorize User
 	requestUser, err := core.GetUserFromAuthorizationHeader(models.DBConn, c)
@@ -89,8 +102,25 @@ func registerClientRoute(c *gin.Context) {
 		return
 	}
 
+	// Parse JSON
+	var request schemas.ClientRegiterRequest
+	err = c.BindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, schemas.BadRequestResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	// Generate client_id and client_secret
 	now := time.Now()
-	session, err := repository.GenerateClientIdAndClientSecret(models.DBConn, requestUser, now)
+	session, err := repository.GenerateClientIdAndClientSecret(
+		models.DBConn,
+		request.Name,
+		request.Description,
+		requestUser,
+		now,
+	)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, schemas.InternalServerErrorResponse{
 			Error: err.Error(),
@@ -98,6 +128,8 @@ func registerClientRoute(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, schemas.ClientRegiterResponse{
+		Name:         session.Name,
+		Description:  session.Description,
 		ClientId:     session.ClientID,
 		ClientSecret: session.ClientSecret,
 	})

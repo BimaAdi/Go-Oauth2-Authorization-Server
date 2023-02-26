@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func GenerateClientId(envPath string, emailOrUsername string) (string, string) {
+func GenerateClientId(envPath string, emailOrUsername string, name string, description string) (string, string) {
 	// Initialize environtment variable
 	settings.InitiateSettings(envPath)
 
@@ -28,7 +28,7 @@ func GenerateClientId(envPath string, emailOrUsername string) (string, string) {
 		return "", ""
 	}
 
-	session, err := repository.GenerateClientIdAndClientSecret(models.DBConn, user, time.Now())
+	session, err := repository.GenerateClientIdAndClientSecret(models.DBConn, name, description, user, time.Now())
 	if err != nil {
 		fmt.Println("error: " + err.Error())
 		return "", ""

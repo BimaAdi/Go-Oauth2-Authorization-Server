@@ -157,9 +157,18 @@ func main() {
 			{
 				Name:    "generate-client-id",
 				Aliases: []string{"gci"},
-				Usage:   "generate client_id and client_secret for user. usage:`gci {user email or user username}`",
+				Usage:   "generate client_id and client_secret for user",
 				Action: func(cCtx *cli.Context) error {
-					client_id, client_secret := tasks.GenerateClientId(".env", cCtx.Args().First())
+					var usernameOrEmail string
+					name := ""
+					description := ""
+					fmt.Print("Username or Email: ")
+					fmt.Scanf("%s", &usernameOrEmail)
+					fmt.Print("name: ")
+					fmt.Scanf("%s", &name)
+					fmt.Print("description: ")
+					fmt.Scanf("%s", &description)
+					client_id, client_secret := tasks.GenerateClientId(".env", usernameOrEmail, name, description)
 					if client_id != "" && client_secret != "" {
 						fmt.Println("Generate Success")
 						fmt.Println("client_id: " + client_id)

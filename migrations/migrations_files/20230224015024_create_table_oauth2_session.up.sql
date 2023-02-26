@@ -1,6 +1,8 @@
 CREATE TABLE public.oauth2_session (
 	id uuid NOT NULL,
 	user_id uuid NULL,
+	name varchar NOT NULL,
+	description varchar NULL,
 	is_active bool NULL DEFAULT true,
 	created_at timestamptz NULL,
 	client_id text NOT NULL,

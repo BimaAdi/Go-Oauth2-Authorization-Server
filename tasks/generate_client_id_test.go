@@ -37,7 +37,7 @@ func TestGenerateClientIDSuccess(t *testing.T) {
 	models.DBConn.Create(&requestUser)
 
 	// When
-	clientId, clientSecret := tasks.GenerateClientId("../.env", "test")
+	clientId, clientSecret := tasks.GenerateClientId("../.env", "test", "app", "for my app")
 
 	// Expect
 	assert.NotEqual(t, "", clientId)
@@ -46,6 +46,8 @@ func TestGenerateClientIDSuccess(t *testing.T) {
 	if err := models.DBConn.Where("user_id = ?", requestUser.ID).First(&session).Error; err != nil {
 		t.Error(err.Error())
 	}
+	assert.Equal(t, session.Name, "app")
+	assert.Equal(t, session.Description, "for my app")
 	assert.Equal(t, session.ClientID, clientId)
 	assert.Equal(t, session.ClientSecret, clientSecret)
 	assert.NotNil(t, session.CreatedAt)
@@ -59,7 +61,7 @@ func TestGenerateClientIDNotFound(t *testing.T) {
 	models.ClearAllData()
 
 	// When
-	clientId, clientSecret := tasks.GenerateClientId("../.env", "hello")
+	clientId, clientSecret := tasks.GenerateClientId("../.env", "hello", "app", "for my app")
 
 	// Expect
 	assert.Equal(t, "", clientId)

@@ -4,6 +4,29 @@ definitions:
       message:
         type: string
     type: object
+  schemas.ClientRegiterRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  schemas.ClientRegiterResponse:
+    properties:
+      client_id:
+        type: string
+      client_secret:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  schemas.ForbiddenResponse:
+    properties:
+      message:
+        type: string
+    type: object
   schemas.InternalServerErrorResponse:
     properties:
       error:
@@ -140,6 +163,38 @@ paths:
       summary: Login
       tags:
       - Auth
+  /auth/register-client:
+    post:
+      consumes:
+      - application/json
+      description: generate client_id and client_secret for request user
+      parameters:
+      - description: register client
+        in: body
+        name: register
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.ClientRegiterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/schemas.ClientRegiterResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/schemas.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.InternalServerErrorResponse'
+      security:
+      - OAuth2Password: []
+      summary: register client
+      tags:
+      - Auth
   /user/:
     get:
       description: Get All User
@@ -202,6 +257,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/schemas.InternalServerErrorResponse'
+      security:
+      - OAuth2Password: []
       summary: Create User
       tags:
       - User
@@ -225,6 +282,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/schemas.InternalServerErrorResponse'
+      security:
+      - OAuth2Password: []
       summary: Delete User
       tags:
       - User
@@ -255,6 +314,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/schemas.InternalServerErrorResponse'
+      security:
+      - OAuth2Password: []
       summary: Get Detail User
       tags:
       - User
@@ -293,6 +354,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/schemas.InternalServerErrorResponse'
+      security:
+      - OAuth2Password: []
       summary: Update User
       tags:
       - User

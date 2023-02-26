@@ -135,8 +135,14 @@ func (suite *MigrateAuthTestSuite) TestRegisterClientSuccess() {
 	}
 
 	// When
+	requestJson := schemas.ClientRegiterRequest{
+		Name:        "app",
+		Description: "for my app",
+	}
+	requestJsonByte, _ := json.Marshal(requestJson)
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/auth/register-client", nil)
+	req, _ := http.NewRequest("POST", "/auth/register-client", bytes.NewBuffer(requestJsonByte))
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("authorization", "Bearer "+token)
 	suite.router.ServeHTTP(w, req)
 
@@ -149,6 +155,8 @@ func (suite *MigrateAuthTestSuite) TestRegisterClientSuccess() {
 	if err := models.DBConn.Where("user_id = ?", requestUser.ID).First(&session).Error; err != nil {
 		suite.T().Error(err.Error())
 	}
+	assert.Equal(suite.T(), session.Name, "app")
+	assert.Equal(suite.T(), session.Description, "for my app")
 	assert.Equal(suite.T(), session.ClientID, jsonResponse.ClientId)
 	assert.Equal(suite.T(), session.ClientSecret, jsonResponse.ClientSecret)
 	assert.NotNil(suite.T(), session.CreatedAt)
@@ -179,8 +187,14 @@ func (suite *MigrateAuthTestSuite) TestRegisterClientForbidden() {
 	}
 
 	// When
+	requestJson := schemas.ClientRegiterRequest{
+		Name:        "app",
+		Description: "for my app",
+	}
+	requestJsonByte, _ := json.Marshal(requestJson)
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/auth/register-client", nil)
+	req, _ := http.NewRequest("POST", "/auth/register-client", bytes.NewBuffer(requestJsonByte))
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("authorization", "Bearer "+token)
 	suite.router.ServeHTTP(w, req)
 

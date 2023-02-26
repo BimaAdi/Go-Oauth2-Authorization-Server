@@ -8,9 +8,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func GenerateClientIdAndClientSecret(tx *gorm.DB, user models.User, createdAt time.Time) (models.Oauth2Session, error) {
+func GenerateClientIdAndClientSecret(tx *gorm.DB, name string, description string, user models.User, createdAt time.Time) (models.Oauth2Session, error) {
 	newOauth2Session := models.Oauth2Session{
 		UserId:       user.ID,
+		Name:         name,
+		Description:  description,
 		ClientID:     core.GenerateRandomString(30),
 		ClientSecret: core.GenerateRandomString(30),
 		CreatedAt:    createdAt,
