@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -16,6 +17,7 @@ func authRoutes(rq *gin.RouterGroup) {
 
 	auths.POST("/login", authLoginRoute)
 	auths.POST("/register-client", registerClientRoute)
+	auths.GET("/client-id-client-secret/", getClientIdClientSecret)
 }
 
 // Login
@@ -133,4 +135,53 @@ func registerClientRoute(c *gin.Context) {
 		ClientId:     session.ClientID,
 		ClientSecret: session.ClientSecret,
 	})
+}
+
+// Get All Session
+//
+//	@Summary		Get All client_id and client_secret for user
+//	@Description	Get All client_id and client_secret for user
+//	@Tags			Auth
+//	@Produce		json
+//	@Success		200	{object}	schemas.ArrayClientRegisterResponse
+//	@Failure		400	{object}	schemas.BadRequestResponse
+//	@Failure		401	{object}	schemas.UnauthorizedResponse
+//	@Failure		500	{object}	schemas.InternalServerErrorResponse
+//	@Security		OAuth2Password
+//	@Router			/auth/client-id-client-secret/ [get]
+func getClientIdClientSecret(c *gin.Context) {
+	// Authorize User
+	requestUser, err := core.GetUserFromAuthorizationHeader(models.DBConn, c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, schemas.UnauthorizedResponse{
+			Message: "Invalid/Expired token",
+		})
+		return
+	}
+
+	// Get user sessions
+	userSessions, err := repository.GetUserSession(models.DBConn, requestUser)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, schemas.InternalServerErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	// construct json
+	arraySession := []schemas.ClientRegiterResponse{}
+	for _, item := range userSessions {
+		fmt.Println(item)
+		arraySession = append(arraySession, schemas.ClientRegiterResponse{
+			Name:         item.Name,
+			Description:  item.Description,
+			ClientId:     item.ClientID,
+			ClientSecret: item.ClientSecret,
+		})
+	}
+	listSessionSchema := schemas.ArrayClientRegisterResponse{
+		Data: arraySession,
+	}
+
+	c.JSON(http.StatusOK, listSessionSchema)
 }
