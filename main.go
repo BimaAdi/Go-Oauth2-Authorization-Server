@@ -154,6 +154,20 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name:    "generate-client-id",
+				Aliases: []string{"gci"},
+				Usage:   "generate client_id and client_secret for user. usage:`gci {user email or user username}`",
+				Action: func(cCtx *cli.Context) error {
+					client_id, client_secret := tasks.GenerateClientId(".env", cCtx.Args().First())
+					if client_id != "" && client_secret != "" {
+						fmt.Println("Generate Success")
+						fmt.Println("client_id: " + client_id)
+						fmt.Println("client_secret: " + client_secret)
+					}
+					return nil
+				},
+			},
 		},
 	}
 

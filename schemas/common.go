@@ -4,11 +4,15 @@ type BadRequestResponse struct {
 	Message string `json:"message"`
 }
 
-type NotFoundResponse struct {
+type UnauthorizedResponse struct {
 	Message string `json:"message"`
 }
 
-type UnauthorizedResponse struct {
+type ForbiddenResponse struct {
+	Message string `json:"message"`
+}
+
+type NotFoundResponse struct {
 	Message string `json:"message"`
 }
 

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/BimaAdi/Oauth2AuthorizationServer/core"
+	"github.com/BimaAdi/Oauth2AuthorizationServer/migrations"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/models"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/settings"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/tasks"
@@ -14,7 +15,7 @@ func TestCreateSuperUser(t *testing.T) {
 	// Given
 	settings.InitiateSettings("../.env")
 	models.Initiate()
-	models.AutoMigrate()
+	migrations.MigrateUp("../.env", "file://../migrations/migrations_files/")
 	models.ClearAllData()
 
 	// When

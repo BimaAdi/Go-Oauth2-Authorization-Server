@@ -110,3 +110,12 @@ func GetUserByUsername(tx *gorm.DB, username string) (models.User, error) {
 	}
 	return user, nil
 }
+
+func GetUserByUsernameOrEmail(tx *gorm.DB, usernameOrEmail string) (models.User, error) {
+	user := models.User{}
+	if err := tx.Where("(username = ? OR email = ? ) AND deleted_at IS NULL", usernameOrEmail, usernameOrEmail).
+		First(&user).Error; err != nil {
+		return user, err
+	}
+	return user, nil
+}

@@ -2,6 +2,7 @@ package routes
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/BimaAdi/Oauth2AuthorizationServer/core"
 	"github.com/BimaAdi/Oauth2AuthorizationServer/models"
@@ -14,6 +15,7 @@ func authRoutes(rq *gin.RouterGroup) {
 	auths := rq.Group("/auth")
 
 	auths.POST("/login", authLoginRoute)
+	auths.POST("/register-client", registerClientRoute)
 }
 
 // Login
@@ -67,5 +69,36 @@ func authLoginRoute(c *gin.Context) {
 	c.JSON(http.StatusOK, schemas.LoginResponse{
 		AccessToken: token,
 		TokenType:   "Bearer",
+	})
+}
+
+func registerClientRoute(c *gin.Context) {
+	// Authorize User
+	requestUser, err := core.GetUserFromAuthorizationHeader(models.DBConn, c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, schemas.UnauthorizedResponse{
+			Message: "Invalid/Expired token",
+		})
+		return
+	}
+
+	if !requestUser.IsSuperuser {
+		c.JSON(http.StatusForbidden, schemas.ForbiddenResponse{
+			Message: "User not allowed to perform this action",
+		})
+		return
+	}
+
+	now := time.Now()
+	session, err := repository.GenerateClientIdAndClientSecret(models.DBConn, requestUser, now)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, schemas.InternalServerErrorResponse{
+			Error: err.Error(),
+		})
+	}
+
+	c.JSON(http.StatusCreated, schemas.ClientRegiterResponse{
+		ClientId:     session.ClientID,
+		ClientSecret: session.ClientSecret,
 	})
 }
