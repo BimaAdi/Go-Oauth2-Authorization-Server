@@ -248,7 +248,6 @@ func (suite *MigrateAuthTestSuite) TestGetClientIdClientSecret() {
 	suite.router.ServeHTTP(w, req)
 
 	// Expect
-	suite.T().Log(w.Body)
 	assert.Equal(suite.T(), 200, w.Code)
 	jsonResponse := schemas.ArrayClientRegisterResponse{}
 	err = json.Unmarshal(w.Body.Bytes(), &jsonResponse)
@@ -262,7 +261,7 @@ func (suite *MigrateAuthTestSuite) TestGetClientIdClientSecret() {
 }
 
 func (suite *MigrateAuthTestSuite) TearDownTest() {
-	// models.ClearAllData()
+	models.ClearAllData()
 }
 
 func TestMigrateAuthTestSuite(t *testing.T) {

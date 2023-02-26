@@ -22,20 +22,3 @@ func GenerateClientIdAndClientSecret(tx *gorm.DB, name string, description strin
 	}
 	return newOauth2Session, nil
 }
-
-func GetUserSession(tx *gorm.DB, user models.User) ([]models.Oauth2Session, error) {
-	sessions := []models.Oauth2Session{}
-	if err := tx.Where("user_id = ? ", user.ID).Find(&sessions).Error; err != nil {
-		return sessions, err
-	}
-	return sessions, nil
-}
-
-// I Don't Know why this work !!!
-// func GetUserSession(tx *gorm.DB, user models.User) ([]models.Oauth2Session, error) {
-// 	sessions := []models.Oauth2Session{}
-// 	if err := tx.Model(&models.Oauth2Session{}).Preload("User").Find(&sessions).Error; err != nil {
-// 		return sessions, err
-// 	}
-// 	return sessions, nil
-// }
