@@ -103,13 +103,6 @@ func DeleteUser(tx *gorm.DB, user models.User) (models.User, error) {
 	return user, nil
 }
 
-func PreloadUserOauth2Sessions(tx *gorm.DB, user *models.User) error {
-	if err := tx.Model(user).Preload("Oauth2Sessions").Find(user).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
 func GetUserByUsername(tx *gorm.DB, username string) (models.User, error) {
 	user := models.User{}
 	if err := tx.Where("username = ? AND deleted_at IS NULL", username).First(&user).Error; err != nil {

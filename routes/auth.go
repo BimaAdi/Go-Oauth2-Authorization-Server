@@ -159,13 +159,8 @@ func getClientIdClientSecret(c *gin.Context) {
 		return
 	}
 
-	// Get user Oauth2Sessions
-	if err = repository.PreloadUserOauth2Sessions(models.DBConn, &requestUser); err != nil {
-		c.JSON(http.StatusInternalServerError, schemas.InternalServerErrorResponse{
-			Error: err.Error(),
-		})
-		return
-	}
+	// Preload Oauth2Sessions
+	models.DBConn.Preload("Oauth2Sessions").Find(&requestUser)
 
 	// construct json
 	arraySession := []schemas.ClientRegiterResponse{}
