@@ -34,6 +34,10 @@ func RunServer(envPath string) {
 		AllowFiles:             true,
 	}))
 
+	// Initiate static and template
+	router.Static("/assets", "./assets")
+	router.LoadHTMLGlob("templates/*.html")
+
 	// Initialize gin route
 	routes := routes.GetRoutes(router)
 

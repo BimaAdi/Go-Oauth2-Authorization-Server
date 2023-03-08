@@ -22,3 +22,11 @@ func GenerateClientIdAndClientSecret(tx *gorm.DB, name string, description strin
 	}
 	return newOauth2Session, nil
 }
+
+func GetDetailOauth2SessionByClientId(tx *gorm.DB, client_id string) (models.Oauth2Session, error) {
+	find_oauth2_session := models.Oauth2Session{}
+	if err := tx.Where("client_id = ?", client_id).First(&find_oauth2_session).Error; err != nil {
+		return models.Oauth2Session{}, err
+	}
+	return find_oauth2_session, nil
+}
