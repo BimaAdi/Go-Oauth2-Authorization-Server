@@ -32,12 +32,20 @@ ON PROGRESS
 - Oauth2 Flow (https://www.oauth.com/, https://oauth.net/)
     - create table oauth2_session [v]
     - client registration api /client-registration (generate client_id and client_secret) [v]
-    - Oauth2 redirect ui
-        - login ui []
+    - Oauth2 redirect ui url see below
+        ```
+        https://authorization-server.com/oauth/authorize?
+        response_type=code
+        &client_id=oiMjpzj7ESt-JdcBnlhutyPC <- get from client
+        &redirect_uri=https://www.oauth.com/playground/authorization-code.html <- get from client
+        &scope=photo+offline_access
+        &state=xJkMG8oJESzNzfyt <- get from client
+        ```
+        - login ui [v]
         - forgot password ui []
     - exchange authorization code api /token (sharing with login user) []
     ```
-    POST https://authorization-server.com/token 
+    POST https://authorization-server.com/oauth/token 
 
     request:
     grant_type=authorization_code
