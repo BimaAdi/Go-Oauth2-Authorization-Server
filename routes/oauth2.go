@@ -21,6 +21,18 @@ func loginUiRoute(c *gin.Context) {
 	c.HTML(http.StatusOK, "login-ui.html", nil)
 }
 
+// Oauth Login
+//
+//	@Summary		Authorize Oauth Login
+//	@Description	Login for Oauth
+//	@Tags			Oauth
+//	@Accept			json
+//	@Param			payload	body	schemas.OauthLoginJsonRequest	true	"login data"
+//	@Success		302
+//	@Failure		400	{object}	schemas.BadRequestResponse
+//	@Failure		403	{object}	schemas.ForbiddenResponse
+//	@Failure		500	{object}	schemas.InternalServerErrorResponse
+//	@Router			/oauth/authorize/ [post]
 func oauthLoginRoute(c *gin.Context) {
 	// Get data from json
 	jsonRequest := schemas.OauthLoginJsonRequest{}

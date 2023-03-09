@@ -153,6 +153,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/oauth/authorize/": {
+            "post": {
+                "description": "Login for Oauth",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Oauth"
+                ],
+                "summary": "Authorize Oauth Login",
+                "parameters": [
+                    {
+                        "description": "login data",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.OauthLoginJsonRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Found"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.BadRequestResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/": {
             "get": {
                 "security": [
@@ -491,6 +537,41 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas.OauthLoginJsonRequest": {
+            "type": "object",
+            "required": [
+                "client_id",
+                "password",
+                "redirect_uri",
+                "response_type",
+                "scope",
+                "state",
+                "username"
+            ],
+            "properties": {
+                "client_id": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "redirect_uri": {
+                    "type": "string"
+                },
+                "response_type": {
+                    "type": "string"
+                },
+                "scope": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }

@@ -51,6 +51,31 @@ definitions:
       message:
         type: string
     type: object
+  schemas.OauthLoginJsonRequest:
+    properties:
+      client_id:
+        type: string
+      password:
+        type: string
+      redirect_uri:
+        type: string
+      response_type:
+        type: string
+      scope:
+        type: string
+      state:
+        type: string
+      username:
+        type: string
+    required:
+    - client_id
+    - password
+    - redirect_uri
+    - response_type
+    - scope
+    - state
+    - username
+    type: object
   schemas.UnauthorizedResponse:
     properties:
       message:
@@ -229,6 +254,36 @@ paths:
       summary: register client
       tags:
       - Auth
+  /oauth/authorize/:
+    post:
+      consumes:
+      - application/json
+      description: Login for Oauth
+      parameters:
+      - description: login data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.OauthLoginJsonRequest'
+      responses:
+        "302":
+          description: Found
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.BadRequestResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/schemas.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.InternalServerErrorResponse'
+      summary: Authorize Oauth Login
+      tags:
+      - Oauth
   /user/:
     get:
       description: Get All User
