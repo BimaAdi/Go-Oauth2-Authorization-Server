@@ -15,6 +15,7 @@ func oauthRoutes(rq *gin.RouterGroup) {
 
 	oauth.GET("/authorize/", loginUiRoute)
 	oauth.POST("/authorize/", oauthLoginRoute)
+	oauth.POST("/token/", oauthTokenRoute)
 }
 
 func loginUiRoute(c *gin.Context) {
@@ -79,4 +80,54 @@ func oauthLoginRoute(c *gin.Context) {
 	}
 
 	c.Redirect(http.StatusFound, jsonRequest.RedirectUri+"?state="+jsonRequest.State+"&code="+code)
+}
+
+func oauthTokenRoute(c *gin.Context) {
+	// Get data from json
+	jsonRequest := schemas.Oauth2TokenJsonRequest{}
+	err := c.ShouldBindJSON(&jsonRequest)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, schemas.BadRequestResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	// Validate Client Id and Client Secret
+	_, err = repository.GetDetailOauth2SessionByClientIdAndClientSecret(models.DBConn, jsonRequest.ClientId, jsonRequest.ClientSecret)
+	if err != nil {
+		c.JSON(http.StatusForbidden, schemas.ForbiddenResponse{
+			Message: "Forbidden",
+		})
+		return
+	}
+
+	// Validate Code
+	oauthToken, err := repository.GetOauthTokenByCode(
+		models.DBConn, jsonRequest.Code,
+	)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, schemas.ForbiddenResponse{
+			Message: "Invalid Code",
+		})
+		return
+	}
+
+	// Generate JWT
+	models.DBConn.Preload("User").Find(&oauthToken)
+	jwt_token, err := core.GenerateJWTTokenFromUser(models.DBConn, oauthToken.User)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, schemas.InternalServerErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	// Remove Code
+	repository.DeleteOauthToken(models.DBConn, &oauthToken)
+
+	c.JSON(http.StatusOK, schemas.LoginResponse{
+		AccessToken: jwt_token,
+		TokenType:   "Bearer",
+	})
 }

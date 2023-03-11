@@ -31,6 +31,16 @@ func GetDetailOauth2SessionByClientId(tx *gorm.DB, client_id string) (models.Oau
 	return find_oauth2_session, nil
 }
 
+func GetDetailOauth2SessionByClientIdAndClientSecret(tx *gorm.DB, client_id string, client_secret string) (models.Oauth2Session, error) {
+	find_oauth2_session := models.Oauth2Session{}
+	if err := tx.Where(
+		"client_id = ? AND client_secret = ? AND is_active = ?", client_id, client_secret, true,
+	).First(&find_oauth2_session).Error; err != nil {
+		return models.Oauth2Session{}, err
+	}
+	return find_oauth2_session, nil
+}
+
 func GenerateCodeForUser(tx *gorm.DB, user models.User) (string, error) {
 	code := core.GenerateRandomString(30)
 	new_token := models.Oauth2Token{
@@ -41,4 +51,21 @@ func GenerateCodeForUser(tx *gorm.DB, user models.User) (string, error) {
 		return "", err
 	}
 	return code, nil
+}
+
+func GetOauthTokenByCode(tx *gorm.DB, code string) (models.Oauth2Token, error) {
+	find_oauth2_token := models.Oauth2Token{}
+	if err := tx.Where(
+		"code = ?", code,
+	).First(&find_oauth2_token).Error; err != nil {
+		return find_oauth2_token, err
+	}
+	return find_oauth2_token, nil
+}
+
+func DeleteOauthToken(tx *gorm.DB, oauth2token *models.Oauth2Token) error {
+	if err := tx.Delete(oauth2token).Error; err != nil {
+		return err
+	}
+	return nil
 }
