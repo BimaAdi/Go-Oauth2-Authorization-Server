@@ -99,7 +99,7 @@ func (suite *MigrateOauth2TestSuite) TestOauth2Authorize() {
 
 }
 
-func (suite *MigrateOauth2TestSuite) TestOaut2Token() {
+func (suite *MigrateOauth2TestSuite) TestOaut2TokenSuccess() {
 	// Given
 	timeZoneAsiaJakarta, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
@@ -161,8 +161,67 @@ func (suite *MigrateOauth2TestSuite) TestOaut2Token() {
 	assert.True(suite.T(), errors.Is(err, gorm.ErrRecordNotFound))
 }
 
+func (suite *MigrateOauth2TestSuite) TestOaut2TokeninvalideCode() {
+	// Given
+	timeZoneAsiaJakarta, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		panic(err.Error())
+	}
+	hashPasword, err := core.HashPassword("Fakepassword")
+	if err != nil {
+		panic(err.Error())
+	}
+	requestUser := models.User{
+		Email:       "test@test.com",
+		Username:    "test",
+		Password:    hashPasword,
+		IsActive:    true,
+		IsSuperuser: false,
+		CreatedAt:   time.Date(2022, 10, 5, 10, 0, 0, 0, timeZoneAsiaJakarta),
+	}
+	models.DBConn.Create(&requestUser)
+	client_id := core.GenerateRandomString(30)
+	client_secret := core.GenerateRandomString(30)
+	oauth_2_session := models.Oauth2Session{
+		UserId:       requestUser.ID,
+		Name:         "test app",
+		Description:  "for test app application",
+		ClientID:     client_id,
+		ClientSecret: client_secret,
+		IsActive:     true,
+		CreatedAt:    time.Date(2022, 10, 5, 10, 0, 0, 0, timeZoneAsiaJakarta),
+	}
+	models.DBConn.Create(&oauth_2_session)
+	code := core.GenerateRandomString(30)
+	oauth_2_token := models.Oauth2Token{
+		ID:        client_id,
+		UserId:    requestUser.ID,
+		Code:      code,
+		CreatedAt: time.Time{},
+	}
+	models.DBConn.Create(&oauth_2_token)
+
+	// When
+	requestJson := schemas.Oauth2TokenJsonRequest{
+		GrantType:    "authorization_code",
+		ClientId:     client_id,
+		ClientSecret: client_secret,
+		RedirectUri:  "http://localhost:8000/callbacks/",
+		Code:         "aaaaabbbbccccdddd",
+	}
+	requestJsonByte, _ := json.Marshal(requestJson)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/oauth/token/", bytes.NewBuffer(requestJsonByte))
+	req.Header.Set("Content-Type", "application/json")
+	suite.router.ServeHTTP(w, req)
+
+	// Expect
+	suite.T().Log(w.Body)
+	assert.Equal(suite.T(), 400, w.Code)
+}
+
 func (suite *MigrateOauth2TestSuite) TearDownTest() {
-	// models.ClearAllData()
+	models.ClearAllData()
 }
 
 func TestMigrateOauth2TestSuite(t *testing.T) {

@@ -51,6 +51,25 @@ definitions:
       message:
         type: string
     type: object
+  schemas.Oauth2TokenJsonRequest:
+    properties:
+      client_id:
+        type: string
+      client_secret:
+        type: string
+      code:
+        type: string
+      grant_type:
+        type: string
+      redirect_uri:
+        type: string
+    required:
+    - client_id
+    - client_secret
+    - code
+    - grant_type
+    - redirect_uri
+    type: object
   schemas.OauthLoginJsonRequest:
     properties:
       client_id:
@@ -282,6 +301,40 @@ paths:
           schema:
             $ref: '#/definitions/schemas.InternalServerErrorResponse'
       summary: Authorize Oauth Login
+      tags:
+      - Oauth
+  /oauth/token/:
+    post:
+      consumes:
+      - application/json
+      description: Get Authorization Token
+      parameters:
+      - description: code data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.Oauth2TokenJsonRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.BadRequestResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/schemas.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.InternalServerErrorResponse'
+      summary: Oauth Token
       tags:
       - Oauth
   /user/:
