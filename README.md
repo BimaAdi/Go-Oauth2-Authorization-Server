@@ -43,7 +43,7 @@ ON PROGRESS
         ```
         - login ui [v]
         - forgot password ui []
-    - exchange authorization code api /token (sharing with login user) []
+    - exchange authorization code api /token (sharing with login user) [v]
     ```
     POST https://authorization-server.com/oauth/token 
 
